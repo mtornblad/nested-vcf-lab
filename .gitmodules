@@ -1,0 +1,12 @@
+[submodule "components/vis"]
+	path = components/vis
+	url = git@github.com:mtornblad/vcf-infrastructure-service-appliance.git
+	branch = main
+[submodule "components/vyos-build"]
+	path = components/vyos-build
+	url = git@github.com:mtornblad/vyos-build.git
+	branch = rolling
+[submodule "components/nested-esxi-packer"]
+	path = components/nested-esxi-packer
+	url = git@github.com:mtornblad/nested-esxi-packer.git
+	branch = main
