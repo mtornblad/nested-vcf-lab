@@ -1,0 +1,78 @@
+# ---------------------------------------------------------------------------
+# Artifacts
+#
+# Binary payloads are never committed. Directory structure, documentation
+# and reproducibility manifests are tracked.
+# ---------------------------------------------------------------------------
+
+/artifacts/**
+
+!/artifacts/**/
+!/artifacts/README.md
+!/artifacts/manifests/**
+!/artifacts/**/.gitkeep
+
+
+# ---------------------------------------------------------------------------
+# Local configuration and secrets
+# ---------------------------------------------------------------------------
+
+.env
+.env.*
+!.env.example
+
+/configuration/local/
+/configuration/secrets/
+
+*.pkrvars.hcl
+!*.pkrvars.example.hcl
+
+*.auto.tfvars
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+
+# ---------------------------------------------------------------------------
+# Build caches and temporary files
+# ---------------------------------------------------------------------------
+
+packer_cache/
+.packer.d/
+
+.cache/
+.tmp/
+tmp/
+
+*.log
+*.pid
+
+
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+.venv/
+venv/
+
+
+# ---------------------------------------------------------------------------
+# Editors and operating systems
+# ---------------------------------------------------------------------------
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+.DS_Store
+Thumbs.db
