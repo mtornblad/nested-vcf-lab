@@ -10,3 +10,7 @@
 	path = components/nested-esxi-packer
 	url = git@github.com:mtornblad/nested-esxi-packer.git
 	branch = main
+[submodule "components/vyos-ova-builder"]
+	path = components/vyos-ova-builder
+	url = git@github.com:mtornblad/vyos-ova-builder.git
+	branch = main
