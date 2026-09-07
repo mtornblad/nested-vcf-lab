@@ -1,0 +1,33 @@
+{
+  "schema": "nested-vcf-lab.config/v1",
+  "general": {
+    "vcenter_url": "https://vcenter.example.invalid",
+    "vcenter_username": "",
+    "vcenter_password": "",
+    "vcenter_insecure": false,
+    "content_library": "",
+    "artifacts_directory": "artifacts"
+  },
+  "vyos": {
+    "builder_directory": "components/vyos-ova-builder",
+    "source_directory": "components/vyos-build",
+    "source_branch": "rolling",
+    "artifact_subdirectory": "vyos",
+    "build_by": "builder@example.invalid",
+    "template_name": "VyOS Router",
+    "ova_name": "vyos-vmware-vapp.ova",
+    "display_name": "VyOS Router",
+    "cpus": 2,
+    "memory_mb": 2048,
+    "network_adapters": 2,
+    "network_name": "VM Network",
+    "custom_packages": [
+      "open-vm-tools"
+    ]
+  },
+  "esxi": {
+    "builder_directory": "components/nested-esxi-packer",
+    "artifact_subdirectory": "esxi",
+    "template_name": "Nested ESXi"
+  }
+}
