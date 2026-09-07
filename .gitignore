@@ -5,12 +5,9 @@
 # and reproducibility manifests are tracked.
 # ---------------------------------------------------------------------------
 
-/artifacts/**
-
-!/artifacts/**/
+/artifacts/*
 !/artifacts/README.md
 !/artifacts/manifests/**
-!/artifacts/**/.gitkeep
 
 
 # ---------------------------------------------------------------------------
