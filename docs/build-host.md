@@ -1,72 +1,174 @@
 # Build host
 
-The umbrella repository uses one host to run the component builders. Run the
-preflight check before the first build and after changing the host:
+Use a maintained amd64 Ubuntu installation for the shared build host. A native
+Ubuntu VM is the simplest option. WSL2 is also suitable for the VyOS workflow
+when Docker, OVF Tool, and `govc` are installed in or reachable from the Linux
+distribution.
+
+Run the preflight check before the first build and after changing the host:
 
 ```bash
 ./orchestration/check-build-host.sh
 ```
 
-## Required tools
+## Tool matrix
 
-| Tool | Required for | Check |
-| --- | --- | --- |
-| Bash, Git and Make | Orchestration and source management | `git --version` |
-| Python 3.11+ | Configuration and OVA assembly | `python3 --version` |
-| Docker Engine | Privileged VyOS image build | `docker info` |
-| VMware OVF Tool | VMX-to-OVF conversion | `ovftool --version` |
-| govc | Optional Content Library upload | `govc version` |
+| Tool | VyOS | VIS | Nested ESXi | Purpose |
+| --- | :---: | :---: | :---: | --- |
+| Bash, Git, Make | Required | Required | Required | Source and wrapper commands |
+| Python 3.11+ | Required | Tests/docs | OVA packaging | Validation and packaging scripts |
+| Docker Engine | Required | Appliance runtime build | No | Privileged VyOS build; VIS installs container services |
+| VMware OVF Tool | Required | Required | Recommended | OVF/OVA conversion and deployment |
+| `govc` | Upload only | Optional | Optional | vCenter and Content Library automation |
+| Packer | No | Required | Required | VIS and ESXi image builds |
+| Packer VMware plugin | No | Required | No | VIS `vmware-iso` builder |
+| Packer vSphere plugin | No | No | Required | ESXi `vsphere-iso` builder |
 
-For Ubuntu, baseline packages can be installed with:
+The current preflight script validates the complete VyOS path. It does not yet
+validate Packer or the VIS/ESXi builder plugins.
+
+## Baseline Ubuntu packages
 
 ```bash
-sudo apt update
-sudo apt install -y ca-certificates curl git make python3 unzip zip
+sudo apt-get update
+sudo apt-get install -y \
+  ca-certificates \
+  curl \
+  git \
+  gnupg \
+  make \
+  python3 \
+  tar \
+  unzip \
+  wget \
+  zip
 ```
 
-Install Docker Engine from Docker's maintained Ubuntu repository rather than
-the distribution's older compatibility package:
+The component containers and appliance build scripts install their own image
+dependencies. Do not install an arbitrary host version of VyOS `live-build`.
 
-- https://docs.docker.com/engine/install/ubuntu/
-- https://docs.docker.com/engine/install/linux-postinstall/
+## Docker
 
-Membership in the `docker` group grants root-equivalent access. On WSL2,
-Docker Desktop integration is also suitable if `docker info` works inside the
-distribution and privileged Linux containers are enabled.
+Install Docker Engine from Docker's maintained Ubuntu repository:
 
-Download VMware OVF Tool from Broadcom and place `ovftool` in `PATH`:
+- <https://docs.docker.com/engine/install/ubuntu/>
+- <https://docs.docker.com/engine/install/linux-postinstall/>
 
-- https://developer.broadcom.com/tools/open-virtualization-format-ovf-tool/latest
+Verify both the client and daemon:
 
-The builder itself does not require `govc`. Install it only when Content
-Library upload is needed, following the upstream instructions:
+```bash
+docker version
+docker info
+docker run --rm hello-world
+```
 
-- https://github.com/vmware/govmomi/blob/main/govc/README.md
+The VyOS build container requires `--privileged`. Membership in the `docker`
+group effectively grants root-level control of the host and must be treated as
+a privileged administrative assignment.
+
+### WSL2
+
+Use one Docker model consistently:
+
+- Docker Desktop with WSL integration enabled for the selected distribution;
+  or
+- a native Docker Engine running inside that WSL distribution.
+
+Avoid accidentally resolving the Windows Docker client when a native Linux
+daemon is expected. Check:
+
+```bash
+type -a docker
+docker context show
+docker info --format 'Docker root: {{.DockerRootDir}}'
+```
+
+## Packer
+
+Install Packer using HashiCorp's maintained instructions:
+
+- <https://developer.hashicorp.com/packer/install>
+
+Then install only the plugins required by the component being built:
+
+```bash
+packer version
+
+# VIS: vmware-iso builder
+packer plugins install github.com/hashicorp/vmware
+
+# Nested ESXi: vsphere-iso builder
+packer plugins install github.com/vmware/vsphere
+
+packer plugins installed
+```
+
+VIS uses the VMware plugin and nested ESXi uses the vSphere plugin. Follow the
+component's pinned template syntax; both currently use legacy JSON templates
+rather than HCL. A future refactor should declare and pin plugins in HCL so a
+repeatable `packer init` replaces workstation-global plugin installation.
+
+## VMware OVF Tool
+
+Download OVF Tool from Broadcom and install it according to its bundle
+instructions:
+
+- <https://developer.broadcom.com/tools/open-virtualization-format-ovf-tool/latest>
+
+Do not commit the installer or an expiring authenticated download URL. Verify:
+
+```bash
+ovftool --version
+```
+
+The builder forces `LC_ALL=C` when invoking OVF Tool to keep generated metadata
+stable and avoid locale-dependent behavior.
+
+## govc
+
+Install `govc` only when vCenter inspection or Content Library upload is
+required:
+
+- <https://github.com/vmware/govmomi/blob/main/govc/README.md>
+
+Verify connectivity without exposing the password:
+
+```bash
+export GOVC_URL="vcenter.example.invalid"
+export GOVC_USERNAME="administrator@example.invalid"
+read -rsp 'vCenter password: ' GOVC_PASSWORD
+export GOVC_PASSWORD
+export GOVC_INSECURE=false
+
+govc about
+```
+
+Use `GOVC_INSECURE=true` only in a controlled lab while the vCenter CA is not
+trusted by the build host.
 
 ## Capacity
 
-The preflight script recommends at least 8 GiB RAM and 40 GiB free disk space.
-Generated and downloaded data is placed under `artifacts/`, split by component.
-
-## Configuration
-
-Create the private umbrella configuration and restrict its permissions:
+The current preflight recommends at least 8 GiB visible RAM and 40 GiB free
+space on the filesystem containing the repository. Also inspect Docker's
+backing store, which may live on another virtual disk:
 
 ```bash
-cp configuration/lab.example.json configuration/lab.local.json
-chmod 600 configuration/lab.local.json
-${EDITOR:-vi} configuration/lab.local.json
+df -h .
+df -i .
+docker info --format 'Docker root: {{.DockerRootDir}}'
+docker system df
 ```
 
-The private file is ignored by Git. Environment variables still have highest
-precedence, which is useful for CI secret injection.
+Do not run broad cleanup commands until the build inputs and caches that may be
+removed have been reviewed.
 
-Validate and build VyOS through the umbrella:
+## Final verification
 
 ```bash
+./orchestration/check-build-host.sh
 ./orchestration/run_vyos.py validate
 ./orchestration/run_vyos.py test
-./orchestration/run_vyos.py build
-./orchestration/run_vyos.py validate-upload
-./orchestration/run_vyos.py upload
 ```
+
+[Getting started](getting-started.md) · [Build workflows](build-workflows.md) ·
+[Troubleshooting](troubleshooting.md)
