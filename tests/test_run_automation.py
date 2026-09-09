@@ -62,6 +62,18 @@ class AutomationRunnerTests(unittest.TestCase):
         self.assertEqual(["make", "test"], run_automation.command_for("test", "lab"))
         self.assertEqual(["make", "package"], run_automation.command_for("build", "lab"))
         self.assertEqual(
+            ["make", "pull", "PROFILE=override"],
+            run_automation.command_for("pull", "override"),
+        )
+        self.assertEqual(
+            ["make", "pull", "PROFILE=override"],
+            run_automation.command_for("download", "override"),
+        )
+        self.assertEqual(
+            ["make", "pull", "PROFILE=override", "FORCE=true"],
+            run_automation.command_for("pull", "override", force_pull=True),
+        )
+        self.assertEqual(
             ["make", "push", "PROFILE=override"],
             run_automation.command_for("upload", "override"),
         )

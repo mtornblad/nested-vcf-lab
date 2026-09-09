@@ -76,6 +76,15 @@ profile selected in private umbrella configuration:
 ./orchestration/run_automation.py upload
 ```
 
+Export the configured blueprint from VCF Automation with `pull` (or its
+`download` alias). The command refuses to overwrite a dirty component checkout
+unless `--force` is supplied deliberately:
+
+```bash
+./orchestration/run_automation.py pull
+./orchestration/run_automation.py download --profile integration
+```
+
 The private configuration file and all binary artifacts are excluded from Git.
 
 ## Documentation

@@ -127,6 +127,7 @@ and publishes the full CCI/Supervisor blueprint.
 ```bash
 ./orchestration/check-build-host.sh automation
 ./orchestration/run_automation.py show
+./orchestration/run_automation.py pull
 ./orchestration/run_automation.py validate
 ./orchestration/run_automation.py test
 ./orchestration/run_automation.py build
@@ -137,6 +138,12 @@ The runner defaults to `automation.maven_profile` from the private umbrella
 configuration. `VCFA_PROFILE` and `--profile` provide environment and one-shot
 overrides. The selected profile refers to a private Maven profile containing
 the VCF Automation endpoint and authentication.
+
+`pull` and its `download` alias export the objects selected by the component's
+`content.yaml` and overwrite their local source files. The component Makefile
+rejects a dirty Git checkout by default. Commit or stash local work before
+pulling; use `--force` only when discarding local changes is intentional. Review
+the resulting diff and run the tests before committing the synchronized source.
 
 Source tests do not replace a render test on the target platform. After
 publish, request a deployment with test inputs and validate the raw

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate, package, and publish the VCF Automation blueprint component."""
+"""Pull, validate, package, and publish the VCF Automation blueprint component."""
 
 from __future__ import annotations
 
@@ -65,6 +65,7 @@ def command_for(
     profile: str,
     spec: Path | None = None,
     allow_secret_references: bool = False,
+    force_pull: bool = False,
 ) -> list[str]:
     commands = {
         "validate": ["make", "validate"],
@@ -73,6 +74,11 @@ def command_for(
         "upload": ["make", "push", f"PROFILE={profile}"],
         "clean": ["make", "clean"],
     }
+    if action in {"pull", "download"}:
+        command = ["make", "pull", f"PROFILE={profile}"]
+        if force_pull:
+            command.append("FORCE=true")
+        return command
     if action != "validate-spec":
         return commands[action]
     if spec is None:
@@ -87,7 +93,17 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "action",
-        choices=("show", "validate", "validate-spec", "test", "build", "upload", "clean"),
+        choices=(
+            "show",
+            "pull",
+            "download",
+            "validate",
+            "validate-spec",
+            "test",
+            "build",
+            "upload",
+            "clean",
+        ),
     )
     parser.add_argument(
         "--config",
@@ -112,12 +128,19 @@ def main() -> int:
         action="store_true",
         help="Allow encrypted VCF Automation references during structural JSON validation",
     )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Allow pull/download to overwrite a dirty component checkout",
+    )
     args = parser.parse_args()
 
     try:
         config = load_config(args.config.expanduser().resolve())
         settings, builder = automation_settings(config)
         profile, profile_source = resolve_profile(settings, args.profile)
+        if args.force and args.action not in {"pull", "download"}:
+            raise LabConfigError("--force is only valid with pull or download")
         if not (builder / "pom.xml").is_file() or not (builder / "Makefile").is_file():
             raise LabConfigError(
                 f"VCF Automation component is missing or not initialized: {builder}"
@@ -144,6 +167,7 @@ def main() -> int:
                 profile,
                 spec=spec,
                 allow_secret_references=args.allow_secret_references,
+                force_pull=args.force,
             ),
             cwd=builder,
             check=False,

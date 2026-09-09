@@ -46,6 +46,7 @@ controller for nested vSAN capacity.
 
 ```bash
 ./orchestration/check-build-host.sh automation
+./orchestration/run_automation.py pull
 ./orchestration/run_automation.py validate
 ./orchestration/run_automation.py test
 ./orchestration/run_automation.py build
@@ -64,6 +65,18 @@ Never add that profile or its credentials to this repository.
 The default comes from `automation.maven_profile` in the private umbrella
 configuration. `VCFA_PROFILE` overrides that setting and `--profile` has the
 highest precedence.
+
+`pull` exports the objects listed in `content.yaml` from the selected VCF
+Automation profile. `download` is an alias for the same operation. Because the
+Build Tools pull goal overwrites local source, both commands refuse to run with
+uncommitted component changes unless `--force` is explicitly supplied. Always
+inspect `git -C components/vcf-automation diff` and rerun the component tests
+after a pull.
+
+The tested VCF Installer image uses VAMI bootstrap keys such as `vami.ip0` and
+`vami.DNS` without an `.SDDC-Manager` suffix. Component validation enforces the
+exact key set so synchronization from VCFA cannot silently reintroduce the
+non-working names.
 
 ## Request inputs and variables
 

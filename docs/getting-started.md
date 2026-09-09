@@ -138,6 +138,7 @@ Maven profile:
 
 ```bash
 ./orchestration/run_automation.py show
+./orchestration/run_automation.py pull
 ./orchestration/run_automation.py validate
 ./orchestration/run_automation.py test
 ./orchestration/run_automation.py build
