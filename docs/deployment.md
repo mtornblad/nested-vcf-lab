@@ -141,14 +141,31 @@ observed `eth` numbers. See [Network architecture](networking.md).
 
 ## Blueprint ownership
 
-**Current:** the complete CCI deployment blueprint is maintained outside the
-umbrella repository.
+**Current:** the complete CCI deployment blueprint is versioned in the
+`components/vcf-automation` submodule as a VMware Aria Build Tools
+`vcfa-all-apps` project. It creates the VPC, namespace, disconnected subnets,
+VLAN bindings, bootstrap secret, VyOS router, nested ESXi hosts, VCF Installer,
+and Windows jump host. The ESXi host list is data-driven.
 
-**Target:** reusable blueprints should be versioned below a dedicated
-deployment directory, split into tested modules for namespace/VPC, networks,
-VyOS, ESXi hosts, installer, and optional access hosts. Host lists, IP pools,
-DNS/NTP settings, and passwords must be inputs or structured variables rather
-than repeated literals.
+The blueprint also emits `vcf_deployment_json`. That output contains the
+resolved deployment password and must be treated as secret-bearing material.
+Before submitting it to VCF Installer, save it only to a protected temporary
+file and validate it:
+
+```bash
+umask 077
+VCF_SPEC_DIR="$(mktemp -d)"
+VCF_SPEC="$VCF_SPEC_DIR/vcf-deployment.json"
+${EDITOR:-vi} "$VCF_SPEC"
+jq empty "$VCF_SPEC"
+jq -r '.hostSpecs[].hostname' "$VCF_SPEC"
+```
+
+Paste the copied output into the editor. Remove the temporary directory after
+the VCF Installer handoff is complete.
+
+See [VCF Automation Blueprint](components/vcf-automation.md) for the project
+layout, validation commands, and remaining environment-specific settings.
 
 [Configuration](configuration.md) · [VyOS OVA Builder](components/vyos-ova-builder.md) ·
 [Troubleshooting](troubleshooting.md)

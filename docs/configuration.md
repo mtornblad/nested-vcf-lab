@@ -135,6 +135,7 @@ keys in the supplemental payload.
 | VyOS OVA Builder | Defaults, ignored local JSON, environment | Complete |
 | VIS | Multiple Packer JSON var files and OVF properties | Not yet translated by umbrella |
 | Nested ESXi | Packer JSON variable file and guestinfo properties | `esxi` section exists, runner not implemented |
+| VCF Automation Blueprint | Encrypted request inputs plus structured blueprint variables | Pinned Build Tools submodule; package and publish from the component |
 
 The VIS and nested ESXi component guides identify legacy committed values that
 must be removed before their umbrella adapters are considered complete.

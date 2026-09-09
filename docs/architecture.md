@@ -82,7 +82,7 @@ NTP, or DHCP implementations.
 | VyOS validation, test, build, and upload | Implemented | Add automatic build logging and rolling-source preflight |
 | VIS build | Run inside its submodule | Add umbrella validation, build, publish, and configuration translation |
 | Nested ESXi build | Experimental submodule | Refactor, secure, test, and expose through an umbrella adapter |
-| Supervisor deployment blueprint | Maintained outside this repository | Version and validate reusable blueprint modules here |
+| Supervisor deployment blueprint | Pinned Build Tools submodule with source validation and contract tests | Replace remaining placement and image literals with environment configuration |
 | VIS-managed VyOS | Not implemented | Optional desired-state integration through the VyOS API |
 
 ## Design principles

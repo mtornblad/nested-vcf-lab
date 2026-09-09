@@ -10,6 +10,7 @@ shared operator workflows around it.
 | [VyOS Build](vyos-build.md) | Fork of the VyOS image builder | VMDK consumed by OVA Builder | Integrated dependency |
 | [VIS](vis.md) | Infrastructure-service appliance project | Multi-service Ubuntu OVA | Independently buildable |
 | [Nested ESXi Packer](nested-esxi.md) | Initial Packer implementation | Nested ESXi OVF/OVA | Experimental |
+| [VCF Automation Blueprint](vcf-automation.md) | Aria Build Tools project | Complete CCI/Supervisor lab deployment | Versioned and contract-tested |
 
 ## Source links
 
@@ -17,6 +18,7 @@ shared operator workflows around it.
 - [mtornblad/vyos-build](https://github.com/mtornblad/vyos-build)
 - [mtornblad/vcf-infrastructure-service-appliance](https://github.com/mtornblad/vcf-infrastructure-service-appliance)
 - [mtornblad/nested-esxi-packer](https://github.com/mtornblad/nested-esxi-packer)
+- [mtornblad/nested-vcf-automation](https://github.com/mtornblad/nested-vcf-automation)
 
 Component commits should be reviewed and pushed in their own repositories
 before the umbrella gitlink is advanced. See [Development](../development.md).

@@ -6,9 +6,10 @@ environment. It keeps upstream-derived builders in separate repositories while
 providing one place for shared configuration, artifact handling, validation,
 and operator documentation.
 
-The project currently provides a complete umbrella workflow for the VyOS OVA.
-VIS and nested ESXi are pinned as submodules and retain their own build flows
-while their umbrella adapters are developed.
+The project currently provides a complete umbrella workflow for the VyOS OVA
+and a versioned VCF Automation Build Tools project for deploying the lab. VIS
+and nested ESXi are pinned as submodules and retain their own build flows while
+their umbrella adapters are developed.
 
 ## Project goals
 
@@ -18,6 +19,8 @@ while their umbrella adapters are developed.
 - Preserve clean component boundaries so changes can be contributed upstream.
 - Support private, routable VCF lab topologies on vSphere Supervisor and VM
   Operator.
+- Version and validate the VCF Automation blueprint that deploys the complete
+  lab topology.
 - Record source revisions, dependency checksums, and generated artifact
   metadata.
 
@@ -38,6 +41,7 @@ flowchart LR
 | [VyOS Build](docs/components/vyos-build.md) | Supplies the pinned VyOS image-build source | Integrated dependency |
 | [VCF Infrastructure Services Appliance](docs/components/vis.md) | Provides DNS, NTP, DHCP, depot, backup, registry, identity, and KMS services | Component build only; umbrella adapter planned |
 | [Nested ESXi Packer](docs/components/nested-esxi.md) | Builds a customizable nested ESXi appliance | Experimental; refactoring required |
+| [VCF Automation Blueprint](docs/components/vcf-automation.md) | Deploys the namespace, VPC, networks, appliances, nested hosts, and bootstrap data | Versioned and contract-tested; lab defaults still require review |
 
 ## Quick start
 
@@ -76,11 +80,13 @@ matches your task:
 - [Build and publish workflows](docs/build-workflows.md)
 - [Network architecture](docs/networking.md)
 - [Deployment and first boot](docs/deployment.md)
+- [Nested ESXi image acquisition](docs/components/nested-esxi.md#use-a-prebuilt-appliance-current-path)
 - [Service placement](docs/service-placement.md)
 - [Security model](docs/security.md)
 - [Troubleshooting](docs/troubleshooting.md)
 - [Development and contribution](docs/development.md)
 - [Roadmap](docs/roadmap.md)
+- [Credits and further reading](docs/references.md)
 
 ## Scope
 

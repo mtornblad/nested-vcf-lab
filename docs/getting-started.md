@@ -138,4 +138,15 @@ limitations documented there:
 - [VIS](components/vis.md)
 - [Nested ESXi](components/nested-esxi.md)
 
+The deployment blueprint is not an appliance build. Validate and package it
+through its Build Tools component:
+
+```bash
+make -C components/vcf-automation test
+make -C components/vcf-automation package
+```
+
+See [VCF Automation Blueprint](components/vcf-automation.md) before publishing
+or deploying it.
+
 [Documentation home](index.md) · [Troubleshooting](troubleshooting.md)

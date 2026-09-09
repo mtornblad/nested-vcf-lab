@@ -10,6 +10,73 @@ host deployment.
 > is not yet a supported umbrella build. Resolve the gaps below before using it
 > to publish a reusable image.
 
+## Choose an image source
+
+The deployment blueprint needs a nested ESXi OVA that has already been
+published as a VM Operator image. There are currently two acquisition paths:
+
+| Path | Status | Recommended use |
+| --- | --- | --- |
+| Download a prebuilt Nested ESXi Virtual Appliance | Current | Default for end-to-end blueprint testing |
+| Build with `nested-esxi-packer` | Experimental | Builder development only until the acceptance criteria below pass |
+
+## Use a prebuilt appliance (current path)
+
+William Lam maintains a [Nested Virtualization](https://williamlam.com/nested-virtualization)
+index with links to both free and license-entitlement Nested ESXi Virtual
+Appliances on the Broadcom Support Portal. Portal authentication and an
+applicable entitlement may be required, depending on the release.
+
+1. Select an appliance release compatible with the VCF version being deployed.
+   Verify it against the target VCF bill of materials rather than selecting by
+   recency alone.
+2. Download it directly from the Broadcom Support Portal. Signed download URLs
+   may expire; do not place them in committed configuration.
+3. Store the original package outside Git, for example under
+   `artifacts/esxi/downloads/`, and record its filename, version, source, and
+   checksum in a reproducibility manifest.
+4. Import the OVA into the Content Library consumed by the target Supervisor
+   or VCF Automation project, then wait for image synchronization.
+5. Verify the resulting VM Operator image and its vApp property contract.
+
+```bash
+kubectl get clustervirtualmachineimage
+
+kubectl get clustervirtualmachineimage <image-name> \
+  -o jsonpath='{range .status.ovfProperties[*]}{.key}{"\n"}{end}'
+```
+
+The current blueprint expects the nested ESXi appliance to expose these
+properties:
+
+```text
+guestinfo.hostname
+guestinfo.password
+guestinfo.ipaddress
+guestinfo.netmask
+guestinfo.gateway
+guestinfo.dns
+guestinfo.domain
+guestinfo.ntp
+guestinfo.vlan
+guestinfo.ssh
+```
+
+Finally, set `variables.esx_settings.vm_image` in the VCF Automation blueprint
+to the synchronized image name and confirm that `variables.esx_settings.vm_class`
+selects a class with nested hardware virtualization enabled. See
+[VCF Automation Blueprint](vcf-automation.md).
+
+Do not commit or redistribute downloaded ESXi binaries. Access, use, and
+redistribution remain subject to the vendor's license and support terms.
+
+## Build the appliance locally (experimental path)
+
+The `nested-esxi-packer` submodule is our path toward a reproducible,
+customizable appliance build. It is not yet fully functional or integrated
+with umbrella orchestration, so it must not be assumed to produce the image
+used by the current full-stack blueprint.
+
 ## Intended workflow
 
 ```mermaid
@@ -102,4 +169,4 @@ These commands are a **target interface** and do not exist in the current
 revision.
 
 [Component overview](index.md) · [Security](../security.md) ·
-[Roadmap](../roadmap.md)
+[Roadmap](../roadmap.md) · [Credits and further reading](../references.md)

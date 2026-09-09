@@ -13,16 +13,18 @@ Run the preflight check before the first build and after changing the host:
 
 ## Tool matrix
 
-| Tool | VyOS | VIS | Nested ESXi | Purpose |
-| --- | :---: | :---: | :---: | --- |
-| Bash, Git, Make | Required | Required | Required | Source and wrapper commands |
-| Python 3.11+ | Required | Tests/docs | OVA packaging | Validation and packaging scripts |
-| Docker Engine | Required | Appliance runtime build | No | Privileged VyOS build; VIS installs container services |
-| VMware OVF Tool | Required | Required | Recommended | OVF/OVA conversion and deployment |
-| `govc` | Upload only | Optional | Optional | vCenter and Content Library automation |
-| Packer | No | Required | Required | VIS and ESXi image builds |
-| Packer VMware plugin | No | Required | No | VIS `vmware-iso` builder |
-| Packer vSphere plugin | No | No | Required | ESXi `vsphere-iso` builder |
+| Tool | VyOS | VIS | Nested ESXi | Blueprint | Purpose |
+| --- | :---: | :---: | :---: | :---: | --- |
+| Bash, Git, Make | Required | Required | Required | Required | Source and wrapper commands |
+| Python 3.11+ | Required | Tests/docs | OVA packaging | Validation | Validation and packaging scripts |
+| Docker Engine | Required | Appliance runtime build | No | No | Privileged VyOS build; VIS installs container services |
+| VMware OVF Tool | Required | Required | Recommended | No | OVF/OVA conversion and deployment |
+| `govc` | Upload only | Optional | Optional | No | vCenter and Content Library automation |
+| Packer | No | Required | Required | No | VIS and ESXi image builds |
+| Packer VMware plugin | No | Required | No | No | VIS `vmware-iso` builder |
+| Packer vSphere plugin | No | No | Required | No | ESXi `vsphere-iso` builder |
+| Java 17 and Maven 3.9+ | No | No | No | Required | Aria Build Tools packaging and publication |
+| `jq` | Optional | Optional | Optional | Recommended | Validate rendered VCF deployment JSON |
 
 The current preflight script validates the complete VyOS path. It does not yet
 validate Packer or the VIS/ESXi builder plugins.
@@ -107,6 +109,23 @@ VIS uses the VMware plugin and nested ESXi uses the vSphere plugin. Follow the
 component's pinned template syntax; both currently use legacy JSON templates
 rather than HCL. A future refactor should declare and pin plugins in HCL so a
 repeatable `packer init` replaces workstation-global plugin installation.
+
+## Build Tools for VMware Aria
+
+The VCF Automation blueprint pins Build Tools 4.25.0 through its Maven parent.
+Install Java 17 and Maven 3.9 or newer, then verify the toolchain:
+
+```bash
+java -version
+mvn -version
+make -C components/vcf-automation test
+make -C components/vcf-automation package
+```
+
+Use the [Build Tools documentation](https://vmware.github.io/build-tools-for-vmware-aria/latest/)
+for Maven repository and authentication setup. Publication also requires a
+private Maven profile for the target VCF Automation endpoint; keep it outside
+the repository.
 
 ## VMware OVF Tool
 

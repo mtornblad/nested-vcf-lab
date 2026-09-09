@@ -65,6 +65,7 @@ the fork diverges, stop and review the commits rather than forcing the branch.
 | Umbrella VyOS adapter | `./orchestration/run_vyos.py test` |
 | VyOS OVA Builder | `make -C components/vyos-ova-builder test` |
 | VIS focused suite | `python3 -m unittest tests.test_services tests.test_packer_config` from `components/vis` |
+| VCF Automation blueprint | `make -C components/vcf-automation test` |
 | VyOS shell syntax | Component `make test` target |
 | Documentation links | `python3 orchestration/check-docs.py` |
 | End-to-end VyOS | Build, upload, deploy, verify OVF transport and first boot |

@@ -11,6 +11,8 @@ not a release commitment.
 - Tested VyOS OVA creation, secure vApp property injection, deterministic NIC
   discovery, postconfig initialization, and Content Library upload.
 - Mature component-level VIS service catalog and documentation.
+- Pinned Aria Build Tools project for the full CCI/Supervisor deployment, with
+  encrypted request inputs, a data-driven ESXi host list, and contract tests.
 
 ## Priority 1: secure and normalize component inputs
 
@@ -38,17 +40,16 @@ not a release commitment.
 - Evaluate immutable package snapshots or a controlled artifact cache when
   longer-term reproducibility is required.
 
-## Priority 4: version deployment automation
+## Priority 4: harden deployment automation
 
-- Add reusable CCI/VM Operator blueprint modules to source control.
-- Make ESXi host count data-driven rather than fixed at three hosts.
-- Define IP pools, DNS, NTP, passwords, and product credentials once in
-  structured inputs.
-- Generate VCF host specifications and deployment outputs from the same host
-  list.
-- Keep runtime secrets in secret-aware deployment inputs rather than blueprint
-  defaults.
-- Add schema and render tests for supported platform/API versions.
+- Replace lab-specific image IDs, region, zone, VM classes, and storage policy
+  with a reviewed environment configuration contract.
+- Split the full blueprint into reusable modules if Build Tools and the target
+  VCF Automation release can preserve dependency and output behavior.
+- Add platform-side render tests in addition to the current source contract
+  tests, especially for generated JSON and conditional resources.
+- Add a safe handoff workflow for the secret-bearing VCF deployment JSON.
+- Validate supported VM Operator API and OVF property versions before publish.
 
 ## Priority 5: integrate VIS and VyOS
 
@@ -68,7 +69,8 @@ not a release commitment.
   configuration permissions.
 - Test routing, NAT, DNS forward/reverse lookup, NTP, MTU, nested ESXi
   customization, and VCF Installer validation.
-- Publish a sanitized reference blueprint and a repeatable validation report.
+- Publish a repeatable end-to-end validation report for the sanitized
+  blueprint.
 
 ## Definition of a supported component
 

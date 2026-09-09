@@ -13,7 +13,8 @@ of each pinned component.
 | Configure a lab safely | [Configuration](configuration.md) | [Security](security.md) |
 | Build or upload an appliance | [Build workflows](build-workflows.md) | [Troubleshooting](troubleshooting.md) |
 | Design the nested network | [Network architecture](networking.md) | [Service placement](service-placement.md) |
-| Deploy through vSphere Supervisor | [Deployment](deployment.md) | [VyOS OVA Builder](components/vyos-ova-builder.md) |
+| Deploy through vSphere Supervisor | [Deployment](deployment.md) | [VCF Automation Blueprint](components/vcf-automation.md) |
+| Obtain a nested ESXi image | [Nested ESXi Packer](components/nested-esxi.md) | [Credits and further reading](references.md) |
 | Change the repositories | [Development](development.md) | [Roadmap](roadmap.md) |
 
 ## Core concepts
@@ -55,11 +56,13 @@ of each pinned component.
 - [VyOS Build](components/vyos-build.md)
 - [VCF Infrastructure Services Appliance](components/vis.md)
 - [Nested ESXi Packer](components/nested-esxi.md)
+- [VCF Automation Blueprint](components/vcf-automation.md)
 
 ### Project maintenance
 
 - [Development and contribution](development.md)
 - [Roadmap](roadmap.md)
+- [Credits and further reading](references.md)
 
 ## Accuracy convention
 

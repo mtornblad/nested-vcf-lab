@@ -18,6 +18,7 @@ nested-vcf-lab/
 │       └── logs/
 ├── components/
 │   ├── nested-esxi-packer/
+│   ├── vcf-automation/
 │   ├── vis/
 │   ├── vyos-build/
 │   └── vyos-ova-builder/
@@ -100,6 +101,8 @@ git diff --cached --submodule=log
   copied into a disposable checkout.
 - Do not duplicate VIS service documentation in implementation detail. The
   umbrella component page summarizes it and links to the VIS source documents.
+- Keep CCI resources and rendered deployment outputs in `vcf-automation`; the
+  umbrella repository owns only cross-component policy and operator guidance.
 - Do not place deployment-specific passwords, private DNS names, image IDs, or
   namespace IDs in committed umbrella configuration.
 

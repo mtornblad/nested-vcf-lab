@@ -117,6 +117,27 @@ and secret-management issues.
 Treat it as source material for the planned refactor, not as a supported
 release workflow. See [Nested ESXi](components/nested-esxi.md).
 
+## VCF Automation blueprint workflow
+
+**Current:** `components/vcf-automation` is an independently versioned Aria
+Build Tools project. It does not build an appliance; it validates, packages,
+and publishes the full CCI/Supervisor blueprint.
+
+```bash
+make -C components/vcf-automation test
+make -C components/vcf-automation package
+make -C components/vcf-automation push PROFILE=lab
+```
+
+The `PROFILE` value refers to a private Maven profile containing the VCF
+Automation endpoint and authentication. Source tests do not replace a render
+test on the target platform. After publish, request a deployment with test
+inputs and validate the `vcf_deployment_json` output with `jq` before handing
+it to VCF Installer.
+
+See [VCF Automation Blueprint](components/vcf-automation.md) for its
+configuration, image, and secret contracts.
+
 ## Build records
 
 Every supported component workflow should eventually emit a redacted JSON
