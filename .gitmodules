@@ -14,3 +14,7 @@
 	path = components/vyos-ova-builder
 	url = git@github.com:mtornblad/vyos-ova-builder.git
 	branch = main
+[submodule "components/vcf-automation"]
+	path = components/vcf-automation
+	url = git@github.com:mtornblad/nested-vcf-automation.git
+	branch = main
