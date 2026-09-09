@@ -30,6 +30,7 @@ Install the tools described in [Build host](build-host.md), then run:
 
 ```bash
 ./orchestration/check-build-host.sh
+./orchestration/check-build-host.sh automation
 ```
 
 The complete VyOS path requires Git, Python 3.11 or newer, Docker, OVF Tool,
@@ -53,6 +54,7 @@ Set at least:
 - `general.content_library` before upload
 - `vyos.build_by`
 - `vyos.template_name`
+- `automation.maven_profile` to the profile already defined in Maven
 
 The vCenter URL must identify vCenter itself, not a VCF Automation endpoint or
 another HTTPS virtual IP. Validate it independently with:
@@ -129,6 +131,42 @@ points are:
 4. `guestinfo.ovfEnv` contains the supplied properties.
 5. The VyOS first-boot completion marker exists.
 
+## 8. Build and publish the VCF Automation blueprint
+
+The same private umbrella configuration selects the component and default
+Maven profile:
+
+```bash
+./orchestration/run_automation.py show
+./orchestration/run_automation.py validate
+./orchestration/run_automation.py test
+./orchestration/run_automation.py build
+./orchestration/run_automation.py upload
+```
+
+Override only the publication target when needed:
+
+```bash
+VCFA_PROFILE=integration ./orchestration/run_automation.py upload
+./orchestration/run_automation.py upload --profile integration
+```
+
+After a test deployment, copy the raw `vcf_deployment_json` output into a
+protected file and validate it:
+
+```bash
+umask 077
+${EDITOR:-vi} /tmp/vcf-deployment.json
+./orchestration/run_automation.py validate-spec \
+  --spec /tmp/vcf-deployment.json \
+  --allow-secret-references
+```
+
+The flag permits a structural check of encrypted Automation references. It is
+not valid for the final handoff: materialize credentials in the protected
+local copy and rerun without `--allow-secret-references` before importing the
+file into VCF Installer.
+
 ## Other components
 
 VIS and nested ESXi do not yet have umbrella runner commands. Use their
@@ -137,14 +175,6 @@ limitations documented there:
 
 - [VIS](components/vis.md)
 - [Nested ESXi](components/nested-esxi.md)
-
-The deployment blueprint is not an appliance build. Validate and package it
-through its Build Tools component:
-
-```bash
-make -C components/vcf-automation test
-make -C components/vcf-automation package
-```
 
 See [VCF Automation Blueprint](components/vcf-automation.md) before publishing
 or deploying it.

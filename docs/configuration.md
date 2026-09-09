@@ -20,8 +20,9 @@ cp configuration/lab.example.json configuration/lab.local.json
 chmod 600 configuration/lab.local.json
 ```
 
-The schema is `nested-vcf-lab.config/v1` and currently requires `general`,
-`vyos`, and `esxi` objects.
+The schema is `nested-vcf-lab.config/v1` and requires `general`, `vyos`, and
+`esxi` objects. The VCF Automation runner additionally requires the
+`automation` object supplied by the current example.
 
 ### General settings
 
@@ -54,6 +55,29 @@ redacted:
 ```bash
 ./orchestration/run_vyos.py show
 ```
+
+### VCF Automation settings
+
+| Field | Purpose | Sensitive |
+| --- | --- | :---: |
+| `builder_directory` | Build Tools component submodule | No |
+| `maven_profile` | Default profile name from the user's Maven `settings.xml` | No |
+
+The profile contains the endpoint and authentication, but only its non-secret
+name belongs in umbrella configuration. Inspect the resolved selection with:
+
+```bash
+./orchestration/run_automation.py show
+```
+
+Profile precedence is:
+
+1. `--profile <name>` on the umbrella command.
+2. `VCFA_PROFILE` in the invoking environment.
+3. `automation.maven_profile` in `configuration/lab.local.json`.
+
+This keeps the common lab profile convenient while allowing CI or a one-off
+publication to target another configured profile without editing JSON.
 
 ## Precedence
 
@@ -135,7 +159,7 @@ keys in the supplemental payload.
 | VyOS OVA Builder | Defaults, ignored local JSON, environment | Complete |
 | VIS | Multiple Packer JSON var files and OVF properties | Not yet translated by umbrella |
 | Nested ESXi | Packer JSON variable file and guestinfo properties | `esxi` section exists, runner not implemented |
-| VCF Automation Blueprint | Encrypted request inputs plus structured blueprint variables | Pinned Build Tools submodule; package and publish from the component |
+| VCF Automation Blueprint | Encrypted request inputs plus structured blueprint variables | Complete validate, test, package, publish, and rendered-JSON validation adapter |
 
 The VIS and nested ESXi component guides identify legacy committed values that
 must be removed before their umbrella adapters are considered complete.

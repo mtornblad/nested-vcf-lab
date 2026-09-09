@@ -29,5 +29,9 @@
     "builder_directory": "components/nested-esxi-packer",
     "artifact_subdirectory": "esxi",
     "template_name": "Nested ESXi"
+  },
+  "automation": {
+    "builder_directory": "components/vcf-automation",
+    "maven_profile": "lab"
   }
 }

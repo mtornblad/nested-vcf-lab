@@ -9,7 +9,12 @@ Run the preflight check before the first build and after changing the host:
 
 ```bash
 ./orchestration/check-build-host.sh
+./orchestration/check-build-host.sh automation
+./orchestration/check-build-host.sh all
 ```
+
+The default target is `vyos`. Select `automation` for the Java/Maven blueprint
+toolchain or `all` for both supported umbrella workflows.
 
 ## Tool matrix
 
@@ -26,8 +31,9 @@ Run the preflight check before the first build and after changing the host:
 | Java 17 and Maven 3.9+ | No | No | No | Required | Aria Build Tools packaging and publication |
 | `jq` | Optional | Optional | Optional | Recommended | Validate rendered VCF deployment JSON |
 
-The current preflight script validates the complete VyOS path. It does not yet
-validate Packer or the VIS/ESXi builder plugins.
+The current preflight script validates the complete VyOS path and the VCF
+Automation Java/Maven path independently. It does not yet validate Packer or
+the VIS/ESXi builder plugins.
 
 ## Baseline Ubuntu packages
 
@@ -118,8 +124,9 @@ Install Java 17 and Maven 3.9 or newer, then verify the toolchain:
 ```bash
 java -version
 mvn -version
-make -C components/vcf-automation test
-make -C components/vcf-automation package
+./orchestration/check-build-host.sh automation
+./orchestration/run_automation.py test
+./orchestration/run_automation.py build
 ```
 
 Use the [Build Tools documentation](https://vmware.github.io/build-tools-for-vmware-aria/latest/)
@@ -187,6 +194,9 @@ removed have been reviewed.
 ./orchestration/check-build-host.sh
 ./orchestration/run_vyos.py validate
 ./orchestration/run_vyos.py test
+./orchestration/check-build-host.sh automation
+./orchestration/run_automation.py validate
+./orchestration/run_automation.py test
 ```
 
 [Getting started](getting-started.md) · [Build workflows](build-workflows.md) ·

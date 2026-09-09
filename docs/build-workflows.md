@@ -2,17 +2,18 @@
 
 ## Workflow support matrix
 
-| Action | VyOS | VIS | Nested ESXi |
-| --- | :---: | :---: | :---: |
-| Umbrella validation | Yes | No | No |
-| Umbrella unit tests | Yes | No | No |
-| Umbrella build | Yes | No | No |
-| Umbrella Content Library upload | Yes | No | No |
-| Component-native build | Yes | Yes | Experimental |
+| Action | VyOS | VCF Automation | VIS | Nested ESXi |
+| --- | :---: | :---: | :---: | :---: |
+| Umbrella validation | Yes | Yes | No | No |
+| Umbrella unit tests | Yes | Yes | No | No |
+| Umbrella build/package | Yes | Yes | No | No |
+| Umbrella publish/upload | Yes | Yes | No | No |
+| Component-native build | Yes | Yes | Yes | Experimental |
 
 There is no top-level `build-all` command today. The supported umbrella path
-is VyOS; VIS and nested ESXi retain their component-native workflows until
-their adapters and common artifact contracts are implemented.
+is implemented for VyOS and VCF Automation; VIS and nested ESXi retain their
+component-native workflows until their adapters and common artifact contracts
+are implemented.
 
 ## VyOS end-to-end workflow
 
@@ -124,16 +125,31 @@ Build Tools project. It does not build an appliance; it validates, packages,
 and publishes the full CCI/Supervisor blueprint.
 
 ```bash
-make -C components/vcf-automation test
-make -C components/vcf-automation package
-make -C components/vcf-automation push PROFILE=lab
+./orchestration/check-build-host.sh automation
+./orchestration/run_automation.py show
+./orchestration/run_automation.py validate
+./orchestration/run_automation.py test
+./orchestration/run_automation.py build
+./orchestration/run_automation.py upload
 ```
 
-The `PROFILE` value refers to a private Maven profile containing the VCF
-Automation endpoint and authentication. Source tests do not replace a render
-test on the target platform. After publish, request a deployment with test
-inputs and validate the `vcf_deployment_json` output with `jq` before handing
-it to VCF Installer.
+The runner defaults to `automation.maven_profile` from the private umbrella
+configuration. `VCFA_PROFILE` and `--profile` provide environment and one-shot
+overrides. The selected profile refers to a private Maven profile containing
+the VCF Automation endpoint and authentication.
+
+Source tests do not replace a render test on the target platform. After
+publish, request a deployment with test inputs and validate the raw
+`vcf_deployment_json` output:
+
+```bash
+./orchestration/run_automation.py validate-spec \
+  --spec /path/to/vcf-deployment.json \
+  --allow-secret-references
+```
+
+Rerun without the flag after resolving protected credential references in the
+local copy intended for VCF Installer.
 
 See [VCF Automation Blueprint](components/vcf-automation.md) for its
 configuration, image, and secret contracts.

@@ -29,6 +29,7 @@ nested-vcf-lab/
 └── orchestration/
     ├── check-build-host.sh
     ├── lab_config.py
+    ├── run_automation.py
     └── run_vyos.py
 ```
 

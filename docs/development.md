@@ -61,11 +61,12 @@ the fork diverges, stop and review the commits rather than forcing the branch.
 
 | Scope | Command |
 | --- | --- |
-| Umbrella host/config | `./orchestration/check-build-host.sh` and `./orchestration/run_vyos.py validate` |
+| Umbrella host/config | `./orchestration/check-build-host.sh all` plus both runner `validate` actions |
 | Umbrella VyOS adapter | `./orchestration/run_vyos.py test` |
+| Umbrella VCF Automation adapter | `python3 -m unittest discover -s tests -v` |
 | VyOS OVA Builder | `make -C components/vyos-ova-builder test` |
 | VIS focused suite | `python3 -m unittest tests.test_services tests.test_packer_config` from `components/vis` |
-| VCF Automation blueprint | `make -C components/vcf-automation test` |
+| VCF Automation blueprint | `./orchestration/run_automation.py test` |
 | VyOS shell syntax | Component `make test` target |
 | Documentation links | `python3 orchestration/check-docs.py` |
 | End-to-end VyOS | Build, upload, deploy, verify OVF transport and first boot |
@@ -103,6 +104,9 @@ git diff --check
 python3 orchestration/check-docs.py
 ./orchestration/run_vyos.py validate
 ./orchestration/run_vyos.py test
+./orchestration/run_automation.py validate
+./orchestration/run_automation.py test
+python3 -m unittest discover -s tests -v
 git diff --cached --submodule=log
 ```
 

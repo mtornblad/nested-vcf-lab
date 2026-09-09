@@ -41,7 +41,7 @@ flowchart LR
 | [VyOS Build](docs/components/vyos-build.md) | Supplies the pinned VyOS image-build source | Integrated dependency |
 | [VCF Infrastructure Services Appliance](docs/components/vis.md) | Provides DNS, NTP, DHCP, depot, backup, registry, identity, and KMS services | Component build only; umbrella adapter planned |
 | [Nested ESXi Packer](docs/components/nested-esxi.md) | Builds a customizable nested ESXi appliance | Experimental; refactoring required |
-| [VCF Automation Blueprint](docs/components/vcf-automation.md) | Deploys the namespace, VPC, networks, appliances, nested hosts, and bootstrap data | Versioned and contract-tested; lab defaults still require review |
+| [VCF Automation Blueprint](docs/components/vcf-automation.md) | Deploys the namespace, VPC, networks, appliances, nested hosts, and bootstrap data | Umbrella build/publish runner, contract tests, and rendered-JSON validation |
 
 ## Quick start
 
@@ -64,6 +64,16 @@ To upload the completed OVA:
 ```bash
 ./orchestration/run_vyos.py validate-upload
 ./orchestration/run_vyos.py upload
+```
+
+To validate, package, and publish the VCF Automation blueprint with the Maven
+profile selected in private umbrella configuration:
+
+```bash
+./orchestration/check-build-host.sh automation
+./orchestration/run_automation.py test
+./orchestration/run_automation.py build
+./orchestration/run_automation.py upload
 ```
 
 The private configuration file and all binary artifacts are excluded from Git.

@@ -27,6 +27,8 @@ The blueprint creates the namespace networking, `SubnetConnectionBindingMap`
 objects, bootstrap secrets, and VMs in one dependency graph. The ESXi VM
 resource uses `length(variable.esx_settings.servers)`, so changing the server
 list changes both provisioned host count and the generated VCF host list.
+An optional raw-block PVC is created per host and attached on an NVMe
+controller for nested vSAN capacity.
 
 ## Source layout
 
@@ -36,42 +38,71 @@ list changes both provisioned host count and the generated VCF host list.
 | `src/main/resources/blueprints/Full Stack VCF/details.json` | Build Tools content metadata |
 | `content.yaml` | Build Tools project descriptor |
 | `scripts/validate_blueprint.py` | Duplicate-key, secret, networking, bootstrap, and template checks |
+| `scripts/validate_vcf_spec.py` | Offline semantic validation of rendered VCF Installer JSON |
 | `tests/test_blueprint_contract.py` | Regression tests for supported source contracts |
 | `pom.xml` | Build Tools package and push lifecycle |
 
 ## Local validation and packaging
 
 ```bash
-cd components/vcf-automation
-python3 -m venv .venv
-. .venv/bin/activate
-python3 -m pip install -r requirements-dev.txt
-
-make test
-make package
+./orchestration/check-build-host.sh automation
+./orchestration/run_automation.py validate
+./orchestration/run_automation.py test
+./orchestration/run_automation.py build
 ```
 
 Publishing requires a private Maven profile containing the VCF Automation
 endpoint and authentication:
 
 ```bash
-make push PROFILE=lab
+./orchestration/run_automation.py upload
+./orchestration/run_automation.py upload --profile integration
 ```
 
 Never add that profile or its credentials to this repository.
+
+The default comes from `automation.maven_profile` in the private umbrella
+configuration. `VCFA_PROFILE` overrides that setting and `--profile` has the
+highest precedence.
 
 ## Request inputs and variables
 
 | Layer | Examples | Policy |
 | --- | --- | --- |
-| Request inputs | lab name, DNS prefix/domain, upstream DNS/NTP, optional Automation deployment | Safe defaults may be committed |
+| Request inputs | lab name, DNS prefix/domain, upstream DNS/NTP, vSAN disk enable/size, optional Automation deployment | Safe defaults may be committed |
 | Encrypted request inputs | shared lab password, VyOS REST key | No committed defaults |
 | Structured variables | image IDs, VM classes, host list, IP pools, component settings | One source of truth; review per environment |
 | Namespace Secret | bootstrap password and REST key | Created at deployment and referenced by VM Operator properties |
 
 The shared password is convenient for a disposable lab, not a production
 credential model. Use separate secret inputs before adapting this blueprint to
-a longer-lived environment.
+a longer-lived environment. Its request-time minimum is 15 characters because
+VCF Services and VCF Automation impose the strictest minimum among the current
+consumers.
+
+## Nested ESXi storage and OVF properties
+
+`esx_vsan_disk_enabled` defaults to `true`; `esx_vsan_disk_size_gib` defaults
+to 100 GiB. The enabled path creates one `ReadWriteOnce`, raw-block PVC per
+ESXi server, using the namespace storage policy, and attaches it as
+`IndependentPersistent` on NVMe controller 0. Set the flag to `false` to
+deploy the boot disk only. The two ESXi VM resources have mutually exclusive
+counts, so exactly one variant is instantiated for every server entry.
+
+Both variants use VM Operator `v1alpha5`. Verify that version and the NVMe
+fields are present on the target Supervisor before publishing:
+
+```bash
+kubectl explain virtualmachine.spec.hardware.nvmeControllers \
+  --api-version=vmoperator.vmware.com/v1alpha5
+kubectl explain virtualmachine.spec.volumes.controllerType \
+  --api-version=vmoperator.vmware.com/v1alpha5
+```
+
+The ESXi image contract is unqualified: `hostname`, `password`, `ipaddress`,
+`netmask`, `gateway`, `dns`, `domain`, `ntp`, `vlan`, and `ssh`. VM Operator
+adds `guestinfo.` when exposing an OVF property inside the guest. Supplying
+`guestinfo.hostname` in `vAppConfig` would therefore target a different key.
 
 ## Generated VCF deployment specification
 
@@ -91,17 +122,32 @@ form:
 Do not use Terraform-style `index, host` declarations. In the target renderer
 that form has produced null object values and missing JSON delimiters.
 
-After every platform-side render, validate the copied result before submitting
-it to VCF Installer:
+After every platform-side render, save the raw value and validate it before
+submitting it to VCF Installer:
 
 ```bash
-jq empty vcf-deployment.json
-jq -r '.hostSpecs[].hostname' vcf-deployment.json
-jq -r '.vcfAutomationSpec.ipPool[]?' vcf-deployment.json
+./orchestration/run_automation.py validate-spec \
+  --spec /path/to/vcf-deployment.json \
+  --allow-secret-references
 ```
 
-The rendered file contains usable passwords. Store it with mode `0600`, never
-commit it, and remove it when the deployment handoff is complete.
+The structural flag permits encrypted Automation output references while
+checking JSON syntax, host names, uniqueness, network membership, IP ranges,
+numeric VLAN types, non-overlapping internal cluster CIDRs, and required
+sections. A value beginning with `((secret:v1:...))` is not a usable VCF
+Installer password. Materialize credentials only in a protected `0600` local
+copy and rerun without `--allow-secret-references` for the final handoff. Never
+commit that file, and remove it when the handoff is complete.
+
+The reference variables assign `240.0.0.0/15` to the VCF Services runtime and
+`198.18.0.0/15` to VCF Automation. Keep both configurable and distinct when
+adapting the blueprint to another environment.
+
+The final authority is the VCF Installer itself. Import the specification in
+the UI or submit it to
+[`POST /v1/sddcs/validations`](https://developer.broadcom.com/xapis/vcf-installer-api/latest/v1/sddcs/validations/post/);
+the offline validator deliberately checks only deterministic structural and
+network invariants.
 
 ## Image contracts
 

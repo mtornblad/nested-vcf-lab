@@ -7,12 +7,14 @@ not a release commitment.
 
 - Umbrella repository with pinned component revisions.
 - Shared vCenter, Content Library, artifact, and VyOS build configuration.
-- Build-host preflight for the complete VyOS workflow.
+- Component-selective build-host preflight for the VyOS and VCF Automation
+  workflows.
 - Tested VyOS OVA creation, secure vApp property injection, deterministic NIC
   discovery, postconfig initialization, and Content Library upload.
 - Mature component-level VIS service catalog and documentation.
-- Pinned Aria Build Tools project for the full CCI/Supervisor deployment, with
-  encrypted request inputs, a data-driven ESXi host list, and contract tests.
+- Pinned Aria Build Tools project with an umbrella runner, encrypted request
+  inputs, a data-driven ESXi host list, optional per-host NVMe vSAN capacity,
+  source contract tests, and offline rendered-spec validation.
 
 ## Priority 1: secure and normalize component inputs
 
