@@ -149,9 +149,24 @@ Do not add `vami.` to the final seven installer keys and do not append an
 against the current images, even where another appliance follows a different
 naming convention.
 
-`fabric_mtu` defaults to 8000 and accepts 1600 through 9000. It is the single
+`fabric_mtu` defaults to 9000 and accepts 1600 through 9000. It is the single
 source for the VyOS trunk and VLAN interfaces and for the vMotion, vSAN, and
 distributed-switch values in the generated VCF specification.
+
+Outer transport MTU is configured in the underlying VCF environment. It must
+accommodate the nested IP MTU plus NSX encapsulation; changing `fabric_mtu`
+does not change the outer vDS or physical network.
+
+`vsan_allow_hcl_incompatible_disks` is a boolean input, default `true`, exposed
+as **Allow auto claim of HCL incompatible disks**. It is passed through
+`vcf_settings.vsan.allow_hcl_incompatible_disks` into
+`datastoreSpec.vsanSpec.esaConfig.skipHclAutoDiskClaim` without JSON quotes.
+
+The installer identity is in `installer_settings`; the new SDDC Manager
+identity is in `vcf_settings.sddc_manager`. Their FQDNs and IP addresses must
+differ for the current `useExistingDeployment: false` workflow. Additional
+DNS A records, including the external VIS appliance, are in
+`vyos_settings.dns.additional_a_records`.
 
 ## Supplemental VyOS configuration
 
@@ -169,7 +184,7 @@ topology-specific VyOS commands. The payload:
 Example source file:
 
 ```text
-set interfaces ethernet __TRUNK_INTERFACE__ mtu 8000
+set interfaces ethernet __TRUNK_INTERFACE__ mtu 9000
 set interfaces ethernet __TRUNK_INTERFACE__ vif 1601 address 172.16.1.1/24
 set nat source rule 100 outbound-interface name __MANAGEMENT_INTERFACE__
 set nat source rule 100 translation address masquerade

@@ -94,10 +94,11 @@ a longer-lived environment. Its request-time minimum is 15 characters because
 VCF Services and VCF Automation impose the strictest minimum among the current
 consumers.
 
-`fabric_mtu` defaults to 8000 and drives the VyOS trunk and its VLAN
+`fabric_mtu` defaults to 9000 and drives the VyOS trunk and its VLAN
 subinterfaces, the generated vMotion and vSAN networks, and the distributed
 switch. Its accepted range is 1600 through 9000. The value must be supported by
-the complete Supervisor-backed path, not only by the nested vDS.
+the complete Supervisor-backed path, including NSX encapsulation headroom.
+See [MTU](../networking.md#mtu) for the outer network checks.
 
 ## Nested ESXi storage and OVF properties
 
@@ -107,6 +108,13 @@ ESXi server, using the namespace storage policy, and attaches it as
 `IndependentPersistent` on NVMe controller 0. Set the flag to `false` to
 deploy the boot disk only. The two ESXi VM resources have mutually exclusive
 counts, so exactly one variant is instantiated for every server entry.
+
+`vsan_allow_hcl_incompatible_disks` defaults to `true` for this nested lab.
+The request label is **Allow auto claim of HCL incompatible disks**. The value
+is held in `vcf_settings.vsan.allow_hcl_incompatible_disks` and rendered as the
+boolean `datastoreSpec.vsanSpec.esaConfig.skipHclAutoDiskClaim` in the VCF JSON.
+It controls the ESA disk-claim path independently of whether the blueprint
+attaches a capacity disk; other eligibility checks still apply.
 
 Both variants use VM Operator `v1alpha5`. Verify that version and the NVMe
 fields are present on the target Supervisor before publishing:
@@ -128,8 +136,20 @@ The blueprint also defines one canonical FQDN for VyOS and one for the VCF
 Installer. VyOS ignores its local hosts file while serving the lab zone, which
 prevents its Debian `127.0.1.1` entry from overriding the authoritative VyOS A
 record. The same VyOS FQDN is used by ESXi, VCF Installer, and the generated
-deployment JSON for NTP. The installer A/PTR records, `vami.hostname`, and
-`sddcManagerSpec.hostname` all use the installer FQDN.
+deployment JSON for NTP. The installer A/PTR records and `vami.hostname` use
+`installer_settings.fqdn`. The new SDDC Manager has a separate identity in
+`vcf_settings.sddc_manager`: `mtsddcm01.dclab.se` at `172.16.1.207` in the
+reference lab, distinct from the installer at `172.16.1.10`.
+`sddcManagerSpec.hostname` uses that SDDC Manager FQDN and keeps
+`useExistingDeployment: false`.
+See [Installer and SDDC Manager identities](../installer-identity.md) for
+read-only checks that distinguish a deployment-target collision from a stale
+installer hostname.
+
+External A records belong in `vyos_settings.dns.additional_a_records` with
+`zone`, `name`, and `address` fields. The reference entry resolves
+`vis-appliance.dclab.se` to `10.114.10.9`. The forwarder ignores `/etc/hosts`, so
+an entry in that file alone is insufficient for clients querying VyOS.
 
 ## Generated VCF deployment specification
 
