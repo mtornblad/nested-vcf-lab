@@ -12,9 +12,10 @@ not a release commitment.
 - Tested VyOS OVA creation, secure vApp property injection, deterministic NIC
   discovery, postconfig initialization, and Content Library upload.
 - Mature component-level VIS service catalog and documentation.
-- Pinned Aria Build Tools project with an umbrella runner, encrypted request
-  inputs, a data-driven ESXi host list, optional per-host NVMe vSAN capacity,
-  source contract tests, and offline rendered-spec validation.
+- Pinned Aria Build Tools project with an umbrella runner, explicit
+  disposable-lab credential inputs, a data-driven ESXi host list, optional
+  per-host NVMe vSAN capacity, source contract tests, and offline rendered-spec
+  validation.
 
 ## Priority 1: secure and normalize component inputs
 

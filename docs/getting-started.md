@@ -159,14 +159,13 @@ protected file and validate it:
 umask 077
 ${EDITOR:-vi} /tmp/vcf-deployment.json
 ./orchestration/run_automation.py validate-spec \
-  --spec /tmp/vcf-deployment.json \
-  --allow-secret-references
+  --spec /tmp/vcf-deployment.json
 ```
 
-The flag permits a structural check of encrypted Automation references. It is
-not valid for the final handoff: materialize credentials in the protected
-local copy and rerun without `--allow-secret-references` before importing the
-file into VCF Installer.
+The current lab blueprint renders the shared password in plaintext. Keep this
+file protected with mode `0600`, never commit it, and remove it after importing
+it into VCF Installer. `--allow-secret-references` is only a structural
+compatibility mode if encrypted inputs are reintroduced later.
 
 ## Other components
 

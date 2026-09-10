@@ -73,17 +73,18 @@ uncommitted component changes unless `--force` is explicitly supplied. Always
 inspect `git -C components/vcf-automation diff` and rerun the component tests
 after a pull.
 
-The tested VCF Installer image uses VAMI bootstrap keys such as `vami.ip0` and
-`vami.DNS` without an `.SDDC-Manager` suffix. Component validation enforces the
-exact key set so synchronization from VCFA cannot silently reintroduce the
-non-working names.
+The tested VCF Installer image uses a mixed bootstrap contract. Only the
+hostname is `vami.hostname`; its IP settings are the unqualified
+`ip_address_version`, `ip0`, `netmask0`, `gateway`, `domain`, `searchpath`, and
+`DNS` keys. Component validation enforces that exact set so a VCFA pull cannot
+silently reintroduce non-working prefixes or `.SDDC-Manager` suffixes.
 
 ## Request inputs and variables
 
 | Layer | Examples | Policy |
 | --- | --- | --- |
-| Request inputs | lab name, DNS prefix/domain, upstream DNS/NTP, vSAN disk enable/size, optional Automation deployment | Safe defaults may be committed |
-| Encrypted request inputs | shared lab password, VyOS REST key | No committed defaults |
+| Request inputs | lab name, DNS prefix/domain, upstream DNS/NTP, fabric MTU, vSAN disk enable/size, optional Automation deployment | Safe defaults may be committed |
+| Plaintext lab credentials | shared lab password, VyOS REST key | No committed defaults; visible in request and output |
 | Structured variables | image IDs, VM classes, host list, IP pools, component settings | One source of truth; review per environment |
 | Namespace Secret | bootstrap password and REST key | Created at deployment and referenced by VM Operator properties |
 
@@ -92,6 +93,11 @@ credential model. Use separate secret inputs before adapting this blueprint to
 a longer-lived environment. Its request-time minimum is 15 characters because
 VCF Services and VCF Automation impose the strictest minimum among the current
 consumers.
+
+`fabric_mtu` defaults to 8000 and drives the VyOS trunk and its VLAN
+subinterfaces, the generated vMotion and vSAN networks, and the distributed
+switch. Its accepted range is 1600 through 9000. The value must be supported by
+the complete Supervisor-backed path, not only by the nested vDS.
 
 ## Nested ESXi storage and OVF properties
 
@@ -112,10 +118,18 @@ kubectl explain virtualmachine.spec.volumes.controllerType \
   --api-version=vmoperator.vmware.com/v1alpha5
 ```
 
-The ESXi image contract is unqualified: `hostname`, `password`, `ipaddress`,
-`netmask`, `gateway`, `dns`, `domain`, `ntp`, `vlan`, and `ssh`. VM Operator
-adds `guestinfo.` when exposing an OVF property inside the guest. Supplying
-`guestinfo.hostname` in `vAppConfig` would therefore target a different key.
+The tested nested ESXi image contract is explicitly prefixed:
+`guestinfo.hostname`, `guestinfo.password`, `guestinfo.ipaddress`,
+`guestinfo.netmask`, `guestinfo.gateway`, `guestinfo.dns`, `guestinfo.domain`,
+`guestinfo.ntp`, `guestinfo.vlan`, and `guestinfo.ssh`. These are the keys that
+work in the current lab and must be preserved verbatim.
+
+The blueprint also defines one canonical FQDN for VyOS and one for the VCF
+Installer. VyOS ignores its local hosts file while serving the lab zone, which
+prevents its Debian `127.0.1.1` entry from overriding the authoritative VyOS A
+record. The same VyOS FQDN is used by ESXi, VCF Installer, and the generated
+deployment JSON for NTP. The installer A/PTR records, `vami.hostname`, and
+`sddcManagerSpec.hostname` all use the installer FQDN.
 
 ## Generated VCF deployment specification
 
@@ -140,17 +154,16 @@ submitting it to VCF Installer:
 
 ```bash
 ./orchestration/run_automation.py validate-spec \
-  --spec /path/to/vcf-deployment.json \
-  --allow-secret-references
+  --spec /path/to/vcf-deployment.json
 ```
 
-The structural flag permits encrypted Automation output references while
-checking JSON syntax, host names, uniqueness, network membership, IP ranges,
-numeric VLAN types, non-overlapping internal cluster CIDRs, and required
-sections. A value beginning with `((secret:v1:...))` is not a usable VCF
-Installer password. Materialize credentials only in a protected `0600` local
-copy and rerun without `--allow-secret-references` for the final handoff. Never
-commit that file, and remove it when the handoff is complete.
+The validator checks JSON syntax, host names, uniqueness, network membership,
+IP ranges, numeric VLAN and MTU types, non-overlapping internal cluster CIDRs,
+and required sections. The lab inputs are plaintext, so protect this rendered
+file with mode `0600`, never commit it, and remove it when the handoff is
+complete. `--allow-secret-references` remains available only as a structural
+compatibility mode if encrypted inputs are introduced later; a value beginning
+with `((secret:v1:...))` is not a usable VCF Installer password.
 
 The reference variables assign `240.0.0.0/15` to the VCF Services runtime and
 `198.18.0.0/15` to VCF Automation. Keep both configurable and distinct when

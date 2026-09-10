@@ -121,6 +121,38 @@ display either the unqualified property ID or the guest-visible key. Query the
 actual `ClusterVirtualMachineImage` and use the keys expected by the installed
 VM Operator version.
 
+## Full Stack blueprint contracts
+
+The current blueprint intentionally accepts `lab_password` and
+`vyos_rest_api_key` as plaintext request inputs. Neither has a default. This
+makes disposable-lab testing and the generated VCF JSON straightforward, but
+both the request and output must be treated as credential-bearing data.
+
+The tested nested ESXi image requires these exact `vAppConfig` keys:
+
+| Purpose | Key |
+| --- | --- |
+| Identity and access | `guestinfo.hostname`, `guestinfo.password`, `guestinfo.ssh` |
+| IPv4 | `guestinfo.ipaddress`, `guestinfo.netmask`, `guestinfo.gateway`, `guestinfo.vlan` |
+| Infrastructure services | `guestinfo.dns`, `guestinfo.domain`, `guestinfo.ntp` |
+
+The tested VCF Installer 9.1 image has a deliberately mixed contract:
+
+| Purpose | Keys |
+| --- | --- |
+| Passwords | `ROOT_PASSWORD`, `LOCAL_USER_PASSWORD` |
+| Identity and time | `vami.hostname`, `guestinfo.ntp` |
+| IPv4 and DNS | `ip_address_version`, `ip0`, `netmask0`, `gateway`, `domain`, `searchpath`, `DNS` |
+
+Do not add `vami.` to the final seven installer keys and do not append an
+`.SDDC-Manager` instance suffix. These names reflect the properties verified
+against the current images, even where another appliance follows a different
+naming convention.
+
+`fabric_mtu` defaults to 8000 and accepts 1600 through 9000. It is the single
+source for the VyOS trunk and VLAN interfaces and for the vMotion, vSAN, and
+distributed-switch values in the generated VCF specification.
+
 ## Supplemental VyOS configuration
 
 Use dedicated properties for stable bootstrap values and `config_base64` for
@@ -159,7 +191,7 @@ keys in the supplemental payload.
 | VyOS OVA Builder | Defaults, ignored local JSON, environment | Complete |
 | VIS | Multiple Packer JSON var files and OVF properties | Not yet translated by umbrella |
 | Nested ESXi | Packer JSON variable file and guestinfo properties | `esxi` section exists, runner not implemented |
-| VCF Automation Blueprint | Encrypted request inputs plus structured blueprint variables | Complete validate, test, package, publish, and rendered-JSON validation adapter |
+| VCF Automation Blueprint | Plaintext disposable-lab credential inputs plus structured blueprint variables | Complete validate, test, package, publish, and rendered-JSON validation adapter |
 
 The VIS and nested ESXi component guides identify legacy committed values that
 must be removed before their umbrella adapters are considered complete.

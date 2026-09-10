@@ -58,7 +58,7 @@ The VyOS workflow provides:
 | --- | --- | --- |
 | VIS | Tracked builder/version/BOM files contain lab-specific values and default credentials | Remove from current tree, rotate exposed credentials, introduce ignored overlays |
 | Nested ESXi | Tracked builder and kickstart inputs contain infrastructure values and credentials | Refactor before another reusable release |
-| VCF Automation blueprint | Request secrets are encrypted inputs, but the rendered VCF deployment JSON contains the resolved shared password | Protect rendered output with mode `0600`, never commit it, and remove it after handoff |
+| VCF Automation blueprint | The disposable-lab password and REST key are intentionally plaintext request inputs, and the rendered VCF deployment JSON contains the shared password | Restrict request/deployment visibility, protect rendered output with mode `0600`, never commit it, remove it after handoff, and use proper secret inputs before production use |
 | TLS | Lab workflows may use insecure vCenter certificate verification | Install the CA or constrain insecure mode to temporary lab use |
 
 Removing a value from the latest commit does not remove it from Git history.

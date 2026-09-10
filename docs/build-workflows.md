@@ -151,12 +151,12 @@ publish, request a deployment with test inputs and validate the raw
 
 ```bash
 ./orchestration/run_automation.py validate-spec \
-  --spec /path/to/vcf-deployment.json \
-  --allow-secret-references
+  --spec /path/to/vcf-deployment.json
 ```
 
-Rerun without the flag after resolving protected credential references in the
-local copy intended for VCF Installer.
+The current disposable-lab inputs render plaintext credentials. Protect the
+file with mode `0600`; `--allow-secret-references` is needed only as a
+structural compatibility mode if encrypted inputs are introduced later.
 
 See [VCF Automation Blueprint](components/vcf-automation.md) for its
 configuration, image, and secret contracts.

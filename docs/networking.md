@@ -98,9 +98,11 @@ nested guest → inner vDS → nested ESXi vNIC → Supervisor subnet → NSX VP
 ```
 
 Do not configure `9000` inside the nested environment merely because the inner
-vDS accepts it. If the Supervisor-backed trunk supports only `8000`, the
-end-to-end design must account for that lower value and encapsulation overhead.
-Validate with non-fragmenting pings at progressively larger payload sizes from
+vDS accepts it. The Full Stack blueprint's `fabric_mtu` input defaults to 8000
+and drives the VyOS trunk plus VLAN subinterfaces, the vMotion and vSAN
+network specifications, and the distributed switch. Override it only with a
+value supported by the complete path. The input accepts 1600 through 9000;
+validate with non-fragmenting pings at progressively larger payload sizes from
 both sides of every routed boundary.
 
 ## DNS and NTP
@@ -109,8 +111,15 @@ The infrastructure can use either VyOS, VIS, or existing external services for
 DNS and NTP. Assign one authoritative owner for each zone and one primary time
 source. Avoid serving the same zone independently from both appliances.
 
-For bootstrap, the chosen DNS and NTP endpoints must be available before VCF
-Installer begins validation. See [Service placement](service-placement.md).
+For the Full Stack blueprint, VyOS is authoritative for the lab forward and
+reverse zones and forwards other queries upstream. It listens on its loopback
+resolver and management address and ignores its local hosts file, preventing a
+`127.0.1.1` host entry from overriding its authoritative A record. VyOS and VCF
+Installer each have one canonical FQDN; the VyOS FQDN is also used consistently
+as the NTP endpoint in VM bootstrap and the generated VCF specification.
+
+These services must be available before VCF Installer begins validation. See
+[Service placement](service-placement.md).
 
 ## Validation checklist
 
