@@ -33,6 +33,15 @@ def automation_settings(config: Mapping[str, Any]) -> tuple[Mapping[str, Any], P
     return settings, builder
 
 
+def variant_directory(
+    builder: Path, settings: Mapping[str, Any], override: str | None = None
+) -> tuple[Path, str]:
+    variant = override if override is not None else settings.get("variant", "full-stack")
+    if variant not in {"full-stack", "modular"}:
+        raise LabConfigError("automation.variant must be full-stack or modular")
+    return (builder / "modular" if variant == "modular" else builder), variant
+
+
 def resolve_profile(
     settings: Mapping[str, Any],
     cli_profile: str | None = None,
@@ -112,6 +121,10 @@ def main() -> int:
         help="Umbrella configuration file",
     )
     parser.add_argument(
+        "--variant", choices=("full-stack", "modular"),
+        help="Override automation.variant; modular selects the four-blueprint package",
+    )
+    parser.add_argument(
         "--profile",
         help=(
             "Maven settings profile override; takes precedence over "
@@ -138,6 +151,8 @@ def main() -> int:
     try:
         config = load_config(args.config.expanduser().resolve())
         settings, builder = automation_settings(config)
+        component_root = builder
+        builder, variant = variant_directory(builder, settings, args.variant)
         profile, profile_source = resolve_profile(settings, args.profile)
         if args.force and args.action not in {"pull", "download"}:
             raise LabConfigError("--force is only valid with pull or download")
@@ -151,6 +166,7 @@ def main() -> int:
                 json.dumps(
                     {
                         "builder_directory": str(builder),
+                        "variant": variant,
                         "maven_profile": profile,
                         "maven_profile_source": profile_source,
                     },
@@ -169,7 +185,8 @@ def main() -> int:
                 allow_secret_references=args.allow_secret_references,
                 force_pull=args.force,
             ),
-            cwd=builder,
+            # Both variants use the shared rendered-spec validator.
+            cwd=component_root if args.action == "validate-spec" else builder,
             check=False,
         ).returncode
     except LabConfigError as error:

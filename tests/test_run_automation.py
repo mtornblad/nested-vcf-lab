@@ -14,6 +14,16 @@ from lab_config import LabConfigError  # noqa: E402
 
 
 class AutomationRunnerTests(unittest.TestCase):
+    def test_variant_selection_preserves_the_default_and_allows_override(self) -> None:
+        root = Path("/lab/components/vcf-automation")
+        self.assertEqual((root, "full-stack"), run_automation.variant_directory(root, {}))
+        self.assertEqual((root / "modular", "modular"), run_automation.variant_directory(root, {"variant": "modular"}))
+        self.assertEqual((root, "full-stack"), run_automation.variant_directory(root, {"variant": "modular"}, "full-stack"))
+
+    def test_variant_cannot_escape_the_component(self) -> None:
+        with self.assertRaises(LabConfigError):
+            run_automation.variant_directory(Path("/lab/component"), {"variant": "../other"})
+
     def test_example_configuration_defines_the_default_profile(self) -> None:
         config = json.loads(
             (PROJECT_ROOT / "configuration" / "lab.example.json").read_text(

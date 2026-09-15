@@ -1,27 +1,22 @@
 # Orchestrator TypeScript component
 
 The new component contains vRO/VCF Operations Orchestrator workflows and
-actions. It has its own Maven project and is intended to be pinned as the
+actions. It has its own Maven project and is pinned as the
 `components/vro-typescript` submodule from `mtornblad/nested-vcf-orchestrator`.
 The blueprint and its CCI/custom-resource definitions stay in
 `components/vcf-automation`.
 
-## Initial integration status
+## Component checkout
 
-The component scaffold and umbrella adapter are prepared. The component's
-GitHub repository must be created and populated before its gitlink is added
-to the umbrella. This draft deliberately does not register an unreachable
-submodule. Once the repository is populated:
+The repository and submodule are registered. Initialize both automation components:
 
 ```bash
-git submodule add -b main \
-  git@github.com:mtornblad/nested-vcf-orchestrator.git \
-  components/vro-typescript
-git add .gitmodules components/vro-typescript
+git submodule update --init components/vcf-automation components/vro-typescript
 ```
 
-Commit that registration into the integration branch before merging it.
-Subsequent updates follow the normal component-first commit/push process.
+Updates follow the normal component-first commit/push process. The new
+[modular lab flow](../modular-vro.md) lives under `src/modular` and provides
+the request form, catalog configuration workflow, and deployment sequence.
 
 ## Configuration
 
@@ -75,16 +70,18 @@ JavaScript. Pulling server content back into TypeScript is unsupported, so
 Maven. Retrieve TypeScript changes through Git. See the
 [upstream workflow](https://vmware.github.io/build-tools-for-vmware-aria/latest/usage/products/vro/typescript/).
 
-The starter action and workflow only validate and return a lab FQDN. They do
-not call the lab or modify resources. Integrations can be added as reviewed
-workflows/actions while the blueprint retains their resource declarations.
+The starter action and workflow under `src/lab` only validate and return a lab
+FQDN. The new `src/modular` workflows configure catalog IDs and request four
+separate blueprints through the VCFA plugin. Their resource declarations stay
+in the automation component. See the [modular guide](../modular-vro.md) before
+running a deployment.
 
 ## Validation boundary
 
-The scaffold's metadata and the umbrella adapter can be checked without an
-Orchestrator endpoint. Actual transpilation, `.package` assembly, Jasmine
-execution, and workflow import still require the configured build toolchain.
-The initial scaffold has not been imported into a live Orchestrator.
+Metadata, the umbrella adapter, pure TypeScript/Jasmine logic, and the official
+4.25.0 vRO transpilation have been checked locally. Full Maven `.package`
+assembly, import and workflow execution still need verification against the
+configured environment.
 
 [Components](index.md) · [Build host](../build-host.md) ·
 [Configuration](../configuration.md) · [Build workflows](../build-workflows.md)

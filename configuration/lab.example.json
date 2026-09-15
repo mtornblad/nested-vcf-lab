@@ -32,6 +32,7 @@
   },
   "automation": {
     "builder_directory": "components/vcf-automation",
+    "variant": "full-stack",
     "maven_profile": "lab"
   },
   "orchestrator": {

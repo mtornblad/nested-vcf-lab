@@ -5,6 +5,10 @@ For the new vRO TypeScript workflow, see
 `run_vro.py` builds a native `.package` and uploads through the selected Maven
 profile. TypeScript has no server-to-source pull operation.
 
+The [modular deployment guide](modular-vro.md) combines this package with four
+separate blueprints. Select their independent automation package with
+`--variant modular` for `test`, `build`, `upload`, `pull`, or `download`.
+
 ## Workflow support matrix
 
 | Action | VyOS | VCF Automation | VIS | Nested ESXi |

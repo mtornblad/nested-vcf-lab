@@ -14,6 +14,7 @@ of each pinned component.
 | Build or upload an appliance | [Build workflows](build-workflows.md) | [Troubleshooting](troubleshooting.md) |
 | Design the nested network | [Network architecture](networking.md) | [Service placement](service-placement.md) |
 | Deploy through vSphere Supervisor | [Deployment](deployment.md) | [VCF Automation Blueprint](components/vcf-automation.md) |
+| Order separate blueprints through vRO | [Modular vRO deployment](modular-vro.md) | [Orchestrator TypeScript](components/vro-typescript.md) |
 | Obtain a nested ESXi image | [Nested ESXi Packer](components/nested-esxi.md) | [Credits and further reading](references.md) |
 | Change the repositories | [Development](development.md) | [Roadmap](roadmap.md) |
 
@@ -47,6 +48,7 @@ of each pinned component.
 - [Configuration](configuration.md)
 - [Build and publish workflows](build-workflows.md)
 - [Deployment and first boot](deployment.md)
+- [Modular deployment through vRO](modular-vro.md)
 - [Troubleshooting](troubleshooting.md)
 
 ### Components
@@ -57,6 +59,7 @@ of each pinned component.
 - [VCF Infrastructure Services Appliance](components/vis.md)
 - [Nested ESXi Packer](components/nested-esxi.md)
 - [VCF Automation Blueprint](components/vcf-automation.md)
+- [Orchestrator TypeScript](components/vro-typescript.md)
 
 ### Project maintenance
 
