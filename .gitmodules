@@ -18,3 +18,7 @@
 	path = components/vcf-automation
 	url = git@github.com:mtornblad/nested-vcf-automation.git
 	branch = main
+[submodule "components/vro-typescript"]
+	path = components/vro-typescript
+	url = git@github.com:mtornblad/nested-vcf-orchestrator.git
+	branch = main
