@@ -10,11 +10,13 @@ Run the preflight check before the first build and after changing the host:
 ```bash
 ./orchestration/check-build-host.sh
 ./orchestration/check-build-host.sh automation
+./orchestration/check-build-host.sh vro
 ./orchestration/check-build-host.sh all
 ```
 
 The default target is `vyos`. Select `automation` for the Java/Maven blueprint
-toolchain or `all` for both supported umbrella workflows.
+toolchain, `vro` for TypeScript including Node/npm, or `all` for every target.
+The `vro` check expects the new component repository to have been registered.
 
 ## Tool matrix
 
@@ -133,6 +135,26 @@ Use the [Build Tools documentation](https://vmware.github.io/build-tools-for-vmw
 for Maven repository and authentication setup. Publication also requires a
 private Maven profile for the target VCF Automation endpoint; keep it outside
 the repository.
+
+## Additional Orchestrator TypeScript dependencies
+
+The TypeScript component also needs Node.js 22.13+ within major 22 and npm
+10.9.2+. With nvm already installed, use the component's `.nvmrc`:
+
+```bash
+cd components/vro-typescript
+nvm install
+nvm use
+node --version
+npm --version
+cd ../..
+./orchestration/check-build-host.sh vro
+```
+
+Do not use an arbitrary latest Node major; the pinned Build Tools 4.25.0
+toolchain declares Node 22 support. The Maven plugin installs its TypeScript,
+vRO declarations, and test dependencies. See
+[Orchestrator TypeScript](components/vro-typescript.md) for target-profile setup.
 
 ## VMware OVF Tool
 

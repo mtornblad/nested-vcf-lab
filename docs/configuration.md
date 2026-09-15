@@ -1,5 +1,11 @@
 # Configuration
 
+The new `orchestrator` section selects the TypeScript component path, artifact
+subdirectory, and Maven profile. `VRO_PROFILE` and `--profile` can override the
+profile; if the section has no profile, `automation.maven_profile` is inherited.
+See [Orchestrator TypeScript](components/vro-typescript.md#configuration) for the
+example and private target settings.
+
 The repository has three distinct configuration phases. Keeping them separate
 prevents build credentials from becoming appliance defaults and prevents
 runtime network values from being baked into reusable OVAs.

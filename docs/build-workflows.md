@@ -1,5 +1,10 @@
 # Build and publish workflows
 
+For the new vRO TypeScript workflow, see
+[Orchestrator TypeScript](components/vro-typescript.md#build-and-publish).
+`run_vro.py` builds a native `.package` and uploads through the selected Maven
+profile. TypeScript has no server-to-source pull operation.
+
 ## Workflow support matrix
 
 | Action | VyOS | VCF Automation | VIS | Nested ESXi |

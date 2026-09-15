@@ -42,6 +42,7 @@ flowchart LR
 | [VCF Infrastructure Services Appliance](docs/components/vis.md) | Provides DNS, NTP, DHCP, depot, backup, registry, identity, and KMS services | Component build only; umbrella adapter planned |
 | [Nested ESXi Packer](docs/components/nested-esxi.md) | Builds a customizable nested ESXi appliance | Experimental; refactoring required |
 | [VCF Automation Blueprint](docs/components/vcf-automation.md) | Deploys the namespace, VPC, networks, appliances, nested hosts, and bootstrap data | Umbrella build/publish runner, contract tests, and rendered-JSON validation |
+| [Orchestrator TypeScript](docs/components/vro-typescript.md) | Builds vRO actions and workflows as a native `.package` | Scaffold and umbrella adapter prepared; component repository registration pending |
 
 ## Quick start
 
@@ -86,6 +87,11 @@ unless `--force` is supplied deliberately:
 ```
 
 The private configuration file and all binary artifacts are excluded from Git.
+
+The [Orchestrator TypeScript component](docs/components/vro-typescript.md) adds
+`run_vro.py` for validation, tests, builds, and upload. Its native package is
+copied to `artifacts/vro/builds/`. Register the new component repository as
+described on its component page before using the build commands.
 
 ## Documentation
 
