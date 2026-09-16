@@ -58,9 +58,9 @@ Select the trial explicitly for each automation command:
 ```bash
 ./orchestration/run_automation.py show --variant modular
 ./orchestration/run_automation.py test --variant modular
-./orchestration/run_automation.py upload --variant modular
 ./orchestration/run_vro.py validate
 ./orchestration/run_vro.py upload
+./orchestration/run_automation.py upload --variant modular
 ```
 
 Both upload commands build their package before publishing it. To build for
@@ -127,9 +127,21 @@ Save the raw JSON output to an ignored file and validate it:
 ```
 
 Then import it into Installer and run its platform validation. Optional
-automatic bring-up uses the existing VCF and installer-certificate custom
-resources and their existing vRO implementations; those workflow
-implementations must be present in the target environment.
+automatic bring-up uses the VCF and installer-certificate custom resources.
+Their workflow implementations are now included in the vRO package as
+[editable native source](https://github.com/mtornblad/nested-vcf-orchestrator/blob/main/docs/custom-resources.md).
+Upload vRO first, then the Automation definitions. The built-in Configurator
+certificate-delete workflow remains an external dependency. Read/Delete VCF
+are still placeholders from the export; see the component guide for retained
+polling and API-response limitations.
+
+The automation create descriptor now forwards the `sddcSpec` input. Check the
+interfaces between the two pinned components before publishing:
+
+```bash
+python3 components/vro-typescript/scripts/validate_native.py \
+  --automation components/vcf-automation
+```
 
 ## Recovery, cleanup and source updates
 

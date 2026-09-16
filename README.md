@@ -94,8 +94,8 @@ copied to `artifacts/vro/builds/`. The [modular vRO variant](docs/modular-vro.md
 adds four separate blueprints and a request form that orders them in sequence:
 
 ```bash
-./orchestration/run_automation.py upload --variant modular
 ./orchestration/run_vro.py upload
+./orchestration/run_automation.py upload --variant modular
 ```
 
 Follow the modular guide to publish the catalog items, configure their runtime
