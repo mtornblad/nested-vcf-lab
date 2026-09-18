@@ -22,7 +22,7 @@ git submodule update --init components/vcf-automation components/vro-typescript
 ```
 
 Updates follow the normal component-first commit/push process. The new
-[modular lab flow](../modular-vro.md) lives under `src/modular` and provides
+[modular lab flow](../modular-vro.md) lives under `src/lab` and provides
 the request form, catalog configuration workflow, and deployment sequence.
 
 ## Configuration
@@ -78,7 +78,7 @@ Maven. Retrieve TypeScript changes through Git. See the
 [upstream workflow](https://vmware.github.io/build-tools-for-vmware-aria/latest/usage/products/vro/typescript/).
 
 The starter action and workflow under `src/lab` only validate and return a lab
-FQDN. The new `src/modular` workflows configure catalog IDs and request four
+FQDN. The new `src/lab` workflows configure catalog IDs and request four
 separate blueprints through the VCFA plugin. Their resource declarations stay
 in the automation component. See the [modular guide](../modular-vro.md) before
 running a deployment.
@@ -93,7 +93,7 @@ configured environment.
 The imported source additionally passes seven native regression tests and
 cross-repository ID/parameter checks. A combined package was built with the
 official 4.25.0 packager and inspected for all imported IDs and forms. The
-component version is 3.0.1-SNAPSHOT because Build Tools stamps its package
+component version is 3.0.2-SNAPSHOT because Build Tools stamps its package
 version onto elements and the imported certificate workflows were already 3.0.0.
 
 [Components](index.md) · [Build host](../build-host.md) ·

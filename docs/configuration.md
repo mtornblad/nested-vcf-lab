@@ -64,8 +64,9 @@ redacted:
 
 ### VCF Automation settings
 
-`automation.variant` selects `full-stack` (default) or `modular`, the separate
-four-blueprint package. `--variant` overrides it for one command. The vRO runtime
+Automation has one six-blueprint package. Remove `automation.variant` from
+local settings; legacy values and `--variant` are accepted with a notice but
+do not filter the package. The vRO runtime
 catalog profile is configured in Orchestrator separately from Maven publication
 profiles; see [modular deployment](modular-vro.md).
 

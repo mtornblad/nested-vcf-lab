@@ -47,6 +47,7 @@ sudo apt-get install -y \
   git \
   gnupg \
   make \
+  openssl \
   python3 \
   tar \
   unzip \

@@ -140,6 +140,7 @@ PY
 fi
 
 if [[ "$BUILD_TARGET" == "vro" || "$BUILD_TARGET" == "all" ]]; then
+    check_command openssl
     check_command node
     check_command npm
     if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then

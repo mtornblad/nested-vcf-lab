@@ -2,17 +2,17 @@
 
 The experimental **modular** variant separates lab provisioning into four
 blueprints and orders them through a TypeScript workflow in VCF Operations
-Orchestrator. The existing Full Stack VCF entry point remains the default.
+Orchestrator. All six blueprints, including Full Stack and Capture, share one build/publish package.
 
 | Component | New content |
 | --- | --- |
-| `components/vcf-automation/modular` | Separate Build Tools package: Foundation, ESXi, Installer and Jumphost |
-| `components/vro-typescript/src/modular` | Request form, catalog configuration workflow, deployment sequence and VCF JSON generation |
-| Umbrella | `--variant modular` selection for blueprint build, upload and download |
+| `components/vcf-automation/src/main/resources/blueprints` | Shared Build Tools package: Full Stack, four modular roles, and Capture |
+| `components/vro-typescript/src/lab` | Request form, catalog configuration workflow, deployment sequence and VCF JSON generation |
+| Umbrella | One build, upload and download entry point for all blueprints |
 
 Use these component guides for the complete contracts and operating details:
 
-- [Blueprint ownership and input/output contract](https://github.com/mtornblad/nested-vcf-automation/blob/main/modular/README.md)
+- [Blueprint ownership and input/output contract](https://github.com/mtornblad/nested-vcf-automation/blob/main/docs/modular.md)
 - [vRO form, configuration, execution and recovery](https://github.com/mtornblad/nested-vcf-orchestrator/blob/main/docs/modular-lab.md)
 
 ## Prepare and publish
@@ -32,7 +32,7 @@ your active virtual environment:
 ```bash
 python3 -m venv .venv
 . .venv/bin/activate
-python3 -m pip install -r components/vcf-automation/modular/requirements.txt
+python3 -m pip install -r components/vcf-automation/requirements-dev.txt
 ```
 
 Merge these sections into `configuration/lab.local.json`, preserving all
@@ -42,7 +42,6 @@ existing settings. The profile IDs reference private Maven settings:
 {
   "automation": {
     "builder_directory": "components/vcf-automation",
-    "variant": "full-stack",
     "maven_profile": "lab"
   },
   "orchestrator": {
@@ -53,24 +52,23 @@ existing settings. The profile IDs reference private Maven settings:
 }
 ```
 
-Select the trial explicitly for each automation command:
+Validate and publish the shared packages:
 
 ```bash
-./orchestration/run_automation.py show --variant modular
-./orchestration/run_automation.py test --variant modular
+./orchestration/run_automation.py show
+./orchestration/run_automation.py test
 ./orchestration/run_vro.py validate
 ./orchestration/run_vro.py upload
-./orchestration/run_automation.py upload --variant modular
+./orchestration/run_automation.py upload
 ```
 
 Both upload commands build their package before publishing it. To build for
 review without uploading, use `build` in place of `upload`. The vRO package is
-also copied to `artifacts/vro/builds/`; the modular automation package is in
-`components/vcf-automation/modular/target/`.
+also copied to `artifacts/vro/builds/`; the combined automation package is in
+`components/vcf-automation/target/`.
 
-To make this variant the local default, set `automation.variant` to `modular`.
-`--variant full-stack` or `--variant modular` overrides the setting for one
-command. Profile precedence is unchanged: automation uses `--profile`, then
+No `automation.variant` setting is needed. Legacy `full-stack` and `modular`
+values are accepted with a notice and use the combined package. Profile precedence is unchanged: automation uses `--profile`, then
 `VCFA_PROFILE`, then `automation.maven_profile`; vRO uses `--profile`,
 `VRO_PROFILE`, `orchestrator.maven_profile`, then `automation.maven_profile`.
 
@@ -158,8 +156,8 @@ cross-deployment deletion dependency.
 To retrieve blueprint edits from Automation after committing local changes:
 
 ```bash
-./orchestration/run_automation.py pull --variant modular
-./orchestration/run_automation.py test --variant modular
+./orchestration/run_automation.py pull
+./orchestration/run_automation.py test
 ```
 
 TypeScript source is retrieved through Git; vRO JavaScript cannot be pulled

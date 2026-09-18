@@ -36,10 +36,12 @@ def automation_settings(config: Mapping[str, Any]) -> tuple[Mapping[str, Any], P
 def variant_directory(
     builder: Path, settings: Mapping[str, Any], override: str | None = None
 ) -> tuple[Path, str]:
-    variant = override if override is not None else settings.get("variant", "full-stack")
-    if variant not in {"full-stack", "modular"}:
-        raise LabConfigError("automation.variant must be full-stack or modular")
-    return (builder / "modular" if variant == "modular" else builder), variant
+    variant = override if override is not None else settings.get("variant", "all")
+    if variant not in {"all", "full-stack", "modular", "capture"}:
+        raise LabConfigError("automation.variant must be all, full-stack, modular or capture")
+    if variant != "all":
+        print("NOTICE: Automation now has one package containing Full Stack, modular and Capture blueprints; the legacy variant setting does not filter it.", file=sys.stderr)
+    return builder, "all"
 
 
 def resolve_profile(
@@ -121,8 +123,8 @@ def main() -> int:
         help="Umbrella configuration file",
     )
     parser.add_argument(
-        "--variant", choices=("full-stack", "modular"),
-        help="Override automation.variant; modular selects the four-blueprint package",
+        "--variant", choices=("all", "full-stack", "modular", "capture"),
+        help="Legacy alias: all choices use the combined six-blueprint package",
     )
     parser.add_argument(
         "--profile",
@@ -185,7 +187,7 @@ def main() -> int:
                 allow_secret_references=args.allow_secret_references,
                 force_pull=args.force,
             ),
-            # Both variants use the shared rendered-spec validator.
+            # All blueprints share this component and its rendered-spec validator.
             cwd=component_root if args.action == "validate-spec" else builder,
             check=False,
         ).returncode

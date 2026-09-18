@@ -6,8 +6,9 @@ For the new vRO TypeScript workflow, see
 profile. TypeScript has no server-to-source pull operation.
 
 The [modular deployment guide](modular-vro.md) combines this package with four
-separate blueprints. Select their independent automation package with
-`--variant modular` for `test`, `build`, `upload`, `pull`, or `download`.
+catalog blueprints. They now share one Automation package with Full Stack and
+[Capture](capture-lab.md); `test`, `build`, `upload`, `pull` and `download` handle
+all six together.
 
 ## Workflow support matrix
 

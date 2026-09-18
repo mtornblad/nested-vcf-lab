@@ -95,8 +95,11 @@ adds four separate blueprints and a request form that orders them in sequence:
 
 ```bash
 ./orchestration/run_vro.py upload
-./orchestration/run_automation.py upload --variant modular
+./orchestration/run_automation.py upload
 ```
+
+The [Capture guide](docs/capture-lab.md) covers restoring configured images into
+a new namespace/VPC and using the SOCKS5 REST action.
 
 Follow the modular guide to publish the catalog items, configure their runtime
 IDs in vRO, and run the first lab request.

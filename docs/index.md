@@ -75,3 +75,5 @@ yet fully implemented. This distinction is important because the umbrella
 currently orchestrates VyOS but not the complete VIS or nested ESXi lifecycle.
 
 [Back to project README](../README.md)
+
+- [Deploy a captured lab and use SOCKS5 REST](capture-lab.md)
