@@ -33,6 +33,17 @@ def automation_settings(config: Mapping[str, Any]) -> tuple[Mapping[str, Any], P
     return settings, builder
 
 
+def variant_directory(
+    builder: Path, settings: Mapping[str, Any], override: str | None = None
+) -> tuple[Path, str]:
+    variant = override if override is not None else settings.get("variant", "all")
+    if variant not in {"all", "full-stack", "modular", "capture"}:
+        raise LabConfigError("automation.variant must be all, full-stack, modular or capture")
+    if variant != "all":
+        print("NOTICE: Automation now has one package containing Full Stack, modular and Capture blueprints; the legacy variant setting does not filter it.", file=sys.stderr)
+    return builder, "all"
+
+
 def resolve_profile(
     settings: Mapping[str, Any],
     cli_profile: str | None = None,
@@ -112,6 +123,10 @@ def main() -> int:
         help="Umbrella configuration file",
     )
     parser.add_argument(
+        "--variant", choices=("all", "full-stack", "modular", "capture"),
+        help="Legacy alias: all choices use the combined six-blueprint package",
+    )
+    parser.add_argument(
         "--profile",
         help=(
             "Maven settings profile override; takes precedence over "
@@ -138,6 +153,8 @@ def main() -> int:
     try:
         config = load_config(args.config.expanduser().resolve())
         settings, builder = automation_settings(config)
+        component_root = builder
+        builder, variant = variant_directory(builder, settings, args.variant)
         profile, profile_source = resolve_profile(settings, args.profile)
         if args.force and args.action not in {"pull", "download"}:
             raise LabConfigError("--force is only valid with pull or download")
@@ -151,6 +168,7 @@ def main() -> int:
                 json.dumps(
                     {
                         "builder_directory": str(builder),
+                        "variant": variant,
                         "maven_profile": profile,
                         "maven_profile_source": profile_source,
                     },
@@ -169,7 +187,8 @@ def main() -> int:
                 allow_secret_references=args.allow_secret_references,
                 force_pull=args.force,
             ),
-            cwd=builder,
+            # All blueprints share this component and its rendered-spec validator.
+            cwd=component_root if args.action == "validate-spec" else builder,
             check=False,
         ).returncode
     except LabConfigError as error:

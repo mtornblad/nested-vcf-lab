@@ -7,8 +7,8 @@ readonly BUILD_TARGET="${1:-vyos}"
 ERRORS=0
 WARNINGS=0
 
-if (( $# > 1 )) || [[ "$BUILD_TARGET" != "vyos" && "$BUILD_TARGET" != "automation" && "$BUILD_TARGET" != "all" ]]; then
-    printf 'Usage: %s [vyos|automation|all]\n' "$0" >&2
+if (( $# > 1 )) || [[ "$BUILD_TARGET" != "vyos" && "$BUILD_TARGET" != "automation" && "$BUILD_TARGET" != "vro" && "$BUILD_TARGET" != "all" ]]; then
+    printf 'Usage: %s [vyos|automation|vro|all]\n' "$0" >&2
     exit 2
 fi
 
@@ -47,7 +47,7 @@ if [[ "$BUILD_TARGET" == "vyos" || "$BUILD_TARGET" == "all" ]]; then
     done
 fi
 
-if [[ "$BUILD_TARGET" == "automation" || "$BUILD_TARGET" == "all" ]]; then
+if [[ "$BUILD_TARGET" == "automation" || "$BUILD_TARGET" == "vro" || "$BUILD_TARGET" == "all" ]]; then
     for REQUIRED_COMMAND in java mvn; do
         check_command "$REQUIRED_COMMAND"
     done
@@ -99,6 +99,9 @@ fi
 if [[ "$BUILD_TARGET" == "automation" || "$BUILD_TARGET" == "all" ]]; then
     COMPONENT_PATHS+=(components/vcf-automation)
 fi
+if [[ "$BUILD_TARGET" == "vro" || "$BUILD_TARGET" == "all" ]]; then
+    COMPONENT_PATHS+=(components/vro-typescript)
+fi
 
 for COMPONENT_PATH in "${COMPONENT_PATHS[@]}"; do
     if [[ -e "${LAB_ROOT}/${COMPONENT_PATH}/.git" ]]; then
@@ -108,7 +111,7 @@ for COMPONENT_PATH in "${COMPONENT_PATHS[@]}"; do
     fi
 done
 
-if [[ "$BUILD_TARGET" == "automation" || "$BUILD_TARGET" == "all" ]]; then
+if [[ "$BUILD_TARGET" == "automation" || "$BUILD_TARGET" == "vro" || "$BUILD_TARGET" == "all" ]]; then
     if command -v java >/dev/null 2>&1; then
         JAVA_VERSION_LINE="$(java -version 2>&1 | head -n 1)"
         JAVA_MAJOR="$(sed -nE 's/.*version "([0-9]+).*/\1/p' <<<"$JAVA_VERSION_LINE")"
@@ -132,6 +135,33 @@ PY
             ok "Apache Maven ${MAVEN_VERSION}"
         else
             fail "Maven 3.9 or newer is required"
+        fi
+    fi
+fi
+
+if [[ "$BUILD_TARGET" == "vro" || "$BUILD_TARGET" == "all" ]]; then
+    check_command openssl
+    check_command node
+    check_command npm
+    if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
+        NODE_VERSION="$(node --version)"
+        NPM_VERSION="$(npm --version)"
+        if python3 - "$NODE_VERSION" "$NPM_VERSION" <<'PY'
+import re
+import sys
+
+def version(value):
+    match = re.match(r"^v?(\d+)\.(\d+)\.(\d+)", value)
+    return tuple(map(int, match.groups())) if match else (0, 0, 0)
+
+node = version(sys.argv[1])
+npm = version(sys.argv[2])
+raise SystemExit(not ((22, 13, 0) <= node < (23, 0, 0) and npm >= (10, 9, 2)))
+PY
+        then
+            ok "Node ${NODE_VERSION}, npm ${NPM_VERSION} match the Build Tools 4.25.0 requirements"
+        else
+            fail "Build Tools 4.25.0 requires Node 22.13+ within major 22 and npm 10.9.2+"
         fi
     fi
 fi

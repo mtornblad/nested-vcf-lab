@@ -33,5 +33,10 @@
   "automation": {
     "builder_directory": "components/vcf-automation",
     "maven_profile": "lab"
+  },
+  "orchestrator": {
+    "builder_directory": "components/vro-typescript",
+    "artifact_subdirectory": "vro",
+    "maven_profile": "lab"
   }
 }

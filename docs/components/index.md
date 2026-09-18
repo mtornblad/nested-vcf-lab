@@ -11,6 +11,7 @@ shared operator workflows around it.
 | [VIS](vis.md) | Infrastructure-service appliance project | Multi-service Ubuntu OVA | Independently buildable |
 | [Nested ESXi Packer](nested-esxi.md) | Initial Packer implementation | Nested ESXi OVF/OVA | Experimental |
 | [VCF Automation Blueprint](vcf-automation.md) | Aria Build Tools project | Complete CCI/Supervisor lab deployment | Versioned and contract-tested |
+| [Orchestrator TypeScript](vro-typescript.md) | Separate Build Tools TypeScript project | vRO actions/workflows in a native `.package` | Scaffold prepared; repository registration pending |
 
 ## Source links
 

@@ -1,5 +1,11 @@
 # Configuration
 
+The new `orchestrator` section selects the TypeScript component path, artifact
+subdirectory, and Maven profile. `VRO_PROFILE` and `--profile` can override the
+profile; if the section has no profile, `automation.maven_profile` is inherited.
+See [Orchestrator TypeScript](components/vro-typescript.md#configuration) for the
+example and private target settings.
+
 The repository has three distinct configuration phases. Keeping them separate
 prevents build credentials from becoming appliance defaults and prevents
 runtime network values from being baked into reusable OVAs.
@@ -57,6 +63,12 @@ redacted:
 ```
 
 ### VCF Automation settings
+
+Automation has one six-blueprint package. Remove `automation.variant` from
+local settings; legacy values and `--variant` are accepted with a notice but
+do not filter the package. The vRO runtime
+catalog profile is configured in Orchestrator separately from Maven publication
+profiles; see [modular deployment](modular-vro.md).
 
 | Field | Purpose | Sensitive |
 | --- | --- | :---: |

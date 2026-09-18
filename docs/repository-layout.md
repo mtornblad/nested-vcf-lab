@@ -30,6 +30,7 @@ nested-vcf-lab/
     ├── check-build-host.sh
     ├── lab_config.py
     ├── run_automation.py
+    ├── run_vro.py
     └── run_vyos.py
 ```
 
@@ -104,6 +105,9 @@ git diff --cached --submodule=log
   umbrella component page summarizes it and links to the VIS source documents.
 - Keep CCI resources and rendered deployment outputs in `vcf-automation`; the
   umbrella repository owns only cross-component policy and operator guidance.
+- Keep TypeScript actions and workflows in the separate `vro-typescript`
+  component. Its initial repository/submodule registration is described in
+  [Orchestrator TypeScript](components/vro-typescript.md).
 - Do not place deployment-specific passwords, private DNS names, image IDs, or
   namespace IDs in committed umbrella configuration.
 

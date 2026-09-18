@@ -42,6 +42,7 @@ flowchart LR
 | [VCF Infrastructure Services Appliance](docs/components/vis.md) | Provides DNS, NTP, DHCP, depot, backup, registry, identity, and KMS services | Component build only; umbrella adapter planned |
 | [Nested ESXi Packer](docs/components/nested-esxi.md) | Builds a customizable nested ESXi appliance | Experimental; refactoring required |
 | [VCF Automation Blueprint](docs/components/vcf-automation.md) | Deploys the namespace, VPC, networks, appliances, nested hosts, and bootstrap data | Umbrella build/publish runner, contract tests, and rendered-JSON validation |
+| [Orchestrator TypeScript](docs/components/vro-typescript.md) | Builds vRO actions and workflows as a native `.package` | Registered submodule; modular deployment flow prepared for integration testing |
 
 ## Quick start
 
@@ -87,6 +88,22 @@ unless `--force` is supplied deliberately:
 
 The private configuration file and all binary artifacts are excluded from Git.
 
+The [Orchestrator TypeScript component](docs/components/vro-typescript.md) adds
+`run_vro.py` for validation, tests, builds, and upload. Its native package is
+copied to `artifacts/vro/builds/`. The [modular vRO variant](docs/modular-vro.md)
+adds four separate blueprints and a request form that orders them in sequence:
+
+```bash
+./orchestration/run_vro.py upload
+./orchestration/run_automation.py upload
+```
+
+The [Capture guide](docs/capture-lab.md) covers restoring configured images into
+a new namespace/VPC and using the SOCKS5 REST action.
+
+Follow the modular guide to publish the catalog items, configure their runtime
+IDs in vRO, and run the first lab request.
+
 ## Documentation
 
 Start with the [documentation home](docs/index.md), then follow the path that
@@ -97,6 +114,7 @@ matches your task:
 - [Build host](docs/build-host.md)
 - [Configuration](docs/configuration.md)
 - [Build and publish workflows](docs/build-workflows.md)
+- [Modular deployment through vRO](docs/modular-vro.md)
 - [Network architecture](docs/networking.md)
 - [Deployment and first boot](docs/deployment.md)
 - [Nested ESXi image acquisition](docs/components/nested-esxi.md#use-a-prebuilt-appliance-current-path)
